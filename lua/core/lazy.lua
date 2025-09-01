@@ -39,7 +39,9 @@ local plugin_categories = {
     "ui.colorizer",
     "ui.image",
     "ui.markdown-preview",
-    
+    "ui.minimap",
+    "ui.zen-mode",
+    "ui.folds",
     
     -- ⚡ Core Functionality (High Priority)
     "completion.blink-enhanced",
@@ -55,12 +57,14 @@ local plugin_categories = {
     "navigation.flash",
     "navigation.neo-tree-enhanced",
     "navigation.oil",
+    "navigation.aerial",
     
     -- 🔧 LSP & Development (High Priority)
     "lsp.lspconfig-ultimate",
     "lsp.mason",
     "lsp.trouble",
     "lsp.actions-preview",
+    "ui.breadcrumbs",
     
     -- 🌳 Git Integration (Medium Priority)
     "git.gitsigns", 
@@ -83,6 +87,9 @@ local plugin_categories = {
     "utils.session",
     "utils.project",
     "utils.copilot",
+    "utils.toggleterm",
+    "utils.yanky",
+    "utils.overseer",
 }
 
 -- 🚀 Lazy.nvim Configuration
