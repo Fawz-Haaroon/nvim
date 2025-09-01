@@ -179,6 +179,35 @@ ensure_python_provider(){
   fi
 }
 
+# Ensure tree-sitter CLI (needed for some parsers like latex, swift)
+ensure_treesitter_cli(){
+  if check_cmd tree-sitter; then return 0; fi
+  info "Installing tree-sitter CLI"
+  case "$pm" in
+    pacman)
+      ensure_pkg tree-sitter-cli || ensure_pkg tree-sitter || true ;;
+    apt)
+      ensure_pkg tree-sitter-cli || true ;;
+    dnf|yum)
+      ensure_pkg tree-sitter-cli || true ;;
+    zypper)
+      ensure_pkg tree-sitter-cli || true ;;
+    brew)
+      ensure_pkg tree-sitter || true ;;
+  esac
+  if ! check_cmd tree-sitter && check_cmd npm; then
+    npm install -g tree-sitter-cli || true
+  fi
+  if ! check_cmd tree-sitter && check_cmd cargo; then
+    cargo install tree-sitter-cli || true
+  fi
+  if check_cmd tree-sitter; then
+    success "tree-sitter CLI installed"
+  else
+    warn "tree-sitter CLI not installed automatically; some parsers may require it (e.g., latex, swift)."
+  fi
+}
+
 # Ensure pipx for isolated Python CLI apps
 ensure_pipx(){
   if check_cmd pipx; then
@@ -322,6 +351,9 @@ if [ "$pm" = "apt" ] && { [ "$NODE_MAJOR" -eq 0 ] || [ "$NODE_MAJOR" -lt 18 ]; }
   ensure_nodesource_node_apt
 fi
 
+# Ensure tree-sitter CLI for parsers that need building
+ensure_treesitter_cli
+
 # Python for debugpy, black, isort
 check_cmd python3 || ensure_pkg python3 || true
 
@@ -449,6 +481,9 @@ else
     "+lua pcall(function() local ok,registry = pcall(require,'mason-registry'); if ok and registry and registry.refresh then registry.refresh() end end)" \
     "+lua pcall(function() require('mason-tool-installer').install() end)" \
     "+qa" || warn "Mason setup encountered issues; run :Mason inside Neovim."
+
+  # Register remote plugins (e.g., wilder.nvim) so functions exist
+  NVIM_APPNAME="" nvim --headless "+UpdateRemotePlugins" "+qa" || warn "Remote plugin registration failed; run :UpdateRemotePlugins in Neovim."
 fi
 
 # Tips
