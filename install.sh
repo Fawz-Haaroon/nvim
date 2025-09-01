@@ -140,6 +140,76 @@ ensure_nodesource_node_apt(){
   sudo apt-get install -y nodejs || true
 }
 
+# Ensure Python venv for Neovim provider (avoids PEP 668 errors)
+ensure_python_provider(){
+  # Ensure python3 is present
+  if ! check_cmd python3; then
+    ensure_pkg python3 || true
+  fi
+
+  # Create venv inside the config directory
+  mkdir -p "$TARGET_DIR"
+  local VENV_DIR="$TARGET_DIR/.venv"
+
+  if [ ! -x "$VENV_DIR/bin/python" ]; then
+    info "Creating Python virtual environment for Neovim at $VENV_DIR"
+    if ! python3 -m venv "$VENV_DIR" 2>/dev/null; then
+      # Try to install venv/virtualenv components per distro and retry
+      case "$pm" in
+        apt)
+          ensure_pkg python3-venv || true ;;
+        dnf|yum)
+          ensure_pkg python3-virtualenv || true ;;
+        zypper)
+          ensure_pkg python311-venv || ensure_pkg python3-virtualenv || true ;;
+      esac
+      python3 -m venv "$VENV_DIR" || {
+        warn "Could not create Python venv; Python provider may not work."
+        return 0
+      }
+    fi
+  fi
+
+  # Upgrade pip and install required packages into the venv
+  if [ -x "$VENV_DIR/bin/python" ]; then
+    "$VENV_DIR/bin/python" -m pip install --upgrade --disable-pip-version-check pip setuptools wheel >/dev/null 2>&1 || true
+    "$VENV_DIR/bin/python" -m pip show pynvim >/dev/null 2>&1 || "$VENV_DIR/bin/python" -m pip install -q pynvim || true
+    "$VENV_DIR/bin/python" -m pip show pytest >/dev/null 2>&1 || "$VENV_DIR/bin/python" -m pip install -q pytest || true
+    success "Python provider ready: $VENV_DIR/bin/python"
+  fi
+}
+
+# Ensure pipx for isolated Python CLI apps
+ensure_pipx(){
+  if check_cmd pipx; then
+    return 0
+  fi
+  info "Installing pipx (isolated Python apps manager)"
+  case "$pm" in
+    pacman)
+      ensure_pkg python-pipx || ensure_pkg pipx || true ;;
+    apt)
+      ensure_pkg pipx || ensure_pkg python3-pipx || true
+      # pipx uses venv module; ensure it's available
+      ensure_pkg python3-venv || true ;;
+    dnf|yum)
+      ensure_pkg pipx || true ;;
+    zypper)
+      ensure_pkg pipx || ensure_pkg python311-pipx || ensure_pkg python3-pipx || true ;;
+    brew)
+      ensure_pkg pipx || true ;;
+    *)
+      warn "Could not determine how to install pipx automatically; please install it manually." ;;
+  esac
+  if check_cmd pipx; then
+    pipx ensurepath >/dev/null 2>&1 || true
+    hash -r 2>/dev/null || true
+    success "pipx is installed"
+  else
+    warn "pipx could not be installed automatically."
+  fi
+}
+
 info "Checking core dependencies (git, curl, neovim, ripgrep, make, compiler, unzip, tar)"
 check_cmd git     || ensure_pkg git
 check_cmd curl    || ensure_pkg curl
@@ -254,11 +324,18 @@ fi
 
 # Python for debugpy, black, isort
 check_cmd python3 || ensure_pkg python3 || true
-check_cmd pip3    || ensure_pkg python3-pip || true
-# Ensure Python provider and test runner for ftplugin/python.lua
-if check_cmd pip3; then
-  pip3 show pynvim >/dev/null 2>&1 || pip3 install --user -q --disable-pip-version-check pynvim || true
-  pip3 show pytest >/dev/null 2>&1 || pip3 install --user -q --disable-pip-version-check pytest || true
+
+# pipx for isolated CLI tools
+ensure_pipx
+
+# Ensure Python provider in a dedicated virtual environment (avoids PEP 668)
+ensure_python_provider
+
+# Optional: install common Python developer CLIs via pipx if missing
+if check_cmd pipx; then
+  check_cmd black || pipx install black || true
+  check_cmd isort || pipx install isort || true
+  check_cmd ruff  || pipx install ruff  || true
 fi
 
 # Go for gopls and go tools

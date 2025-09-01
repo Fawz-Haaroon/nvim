@@ -12,6 +12,13 @@ vim.opt_local.textwidth = 79
 
 -- Python-specific keymaps
 local opts = { buffer = true, silent = true }
-vim.keymap.set("n", "<leader>pr", "<cmd>!python3 %<CR>", vim.tbl_extend("force", opts, { desc = "Run Python file" }))
-vim.keymap.set("n", "<leader>pi", "<cmd>!python3 -i %<CR>", vim.tbl_extend("force", opts, { desc = "Run Python interactive" }))
-vim.keymap.set("n", "<leader>pt", "<cmd>!python3 -m pytest<CR>", vim.tbl_extend("force", opts, { desc = "Run pytest" }))
+local host_py = (vim.g.python3_host_prog and vim.fn.executable(vim.g.python3_host_prog) == 1) and vim.g.python3_host_prog or "python3"
+vim.keymap.set("n", "<leader>pr", function()
+  vim.cmd("!" .. vim.fn.fnameescape(host_py) .. " %")
+end, vim.tbl_extend("force", opts, { desc = "Run Python file" }))
+vim.keymap.set("n", "<leader>pi", function()
+  vim.cmd("!" .. vim.fn.fnameescape(host_py) .. " -i %")
+end, vim.tbl_extend("force", opts, { desc = "Run Python interactive" }))
+vim.keymap.set("n", "<leader>pt", function()
+  vim.cmd("!" .. vim.fn.fnameescape(host_py) .. " -m pytest")
+end, vim.tbl_extend("force", opts, { desc = "Run pytest" }))

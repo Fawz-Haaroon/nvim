@@ -42,6 +42,16 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
 -- Suppress deprecation warnings until plugins update
 vim.deprecate = function() end
 
+-- Use a per-config Python venv for the Neovim Python provider if available
+-- This ensures we don't rely on system Python and avoids PEP 668 issues.
+-- Does not override an existing user setting.
+ do
+  local venv_python = vim.fn.stdpath("config") .. "/.venv/bin/python"
+  if (vim.g.python3_host_prog == nil or vim.g.python3_host_prog == "") and vim.fn.executable(venv_python) == 1 then
+    vim.g.python3_host_prog = venv_python
+  end
+end
+
 -- Bootstrap the perfect configuration
 require("core")
 require("ui.highlights")
