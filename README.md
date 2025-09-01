@@ -33,6 +33,24 @@ nvim
 
 More details: see docs/INSTALL.md
 
+## 📚 Table of Contents
+- 🌟 Highlights
+- 🧰 Requirements
+- 🗺️ Workflows & Keybindings
+  - Text selection & indentation
+  - Search & replace
+  - Navigation & code
+  - Editing & utilities
+  - Formatting
+- 🎨 Theme & Visuals (Tokyo Night base)
+- ✅ Post‑install checks
+- 🛠️ Troubleshooting
+- 💡 Tips
+- 🧪 Philosophy
+- 🤝 Contributing
+- 🛡️ Code of Conduct & Security
+- 📜 License
+
 ## 🌟 Highlights
 - Default theme: Tokyo Night (storm) with tuned Aerial/Navic symbol colors and curved UI
 - Navigation: Telescope (+fzf, file browser, media previews), Neo‑tree, Oil, Harpoon
@@ -71,13 +89,44 @@ Navigation & code
 Editing & utilities
 - Comments: gcc (line), gc (visual)
 - Clipboard history: <leader>cy (Yanky)
-- Terminal: <leader>tt (ToggleTerm), exit with <c-\> then <c-n>
+- Terminal: <leader>tt (ToggleTerm), exit with <c-\\> then <c-n>
 - Minimap: :MinimapToggle
 - Tasks: <leader>rr run, <leader>rt toggle, <leader>ro open, <leader>rb build (Overseer)
 - Diagnostics: ]d / [d, Trouble: <leader>xx
 
 Formatting
 - Conform with language-appropriate formatters; manual: :Format (custom) or <leader>cf (LSP when enabled)
+
+## 🎨 Theme & Visuals (Tokyo Night base)
+- Default colorscheme: tokyonight-storm (see ui/themes.lua).
+- Aerial/Navic use Tokyo Night’s palette for bright, distinct symbol colors. Automatically adapts when you change the colorscheme.
+- Switch flavors quickly:
+  - :colorscheme tokyonight-night or :colorscheme tokyonight-storm
+  - Themery menu: <leader>ut (browse curated themes)
+
+## ✅ Post‑install checks
+- :checkhealth — confirm Python provider points to ~/.config/nvim/.venv/bin/python
+- :Mason — ensure LSP tools are installed (they install automatically)
+- :Lazy — all plugins synced (headless install runs this too)
+- Try: <leader>so (outline), breadcrumbs in statusline, :MinimapToggle, <leader>tt (terminal)
+
+## 🛠️ Troubleshooting
+- PEP 668 (externally managed environment)
+  - Handled automatically: installer creates ~/.config/nvim/.venv and installs pynvim/pytest there; Neovim uses it via python3_host_prog.
+- pipx tools not found
+  - Ensure ~/.local/bin is on PATH. We run pipx ensurepath during install.
+- Old Node on Debian/Ubuntu
+  - Installer sets up Node 20 using NodeSource (apt). Re-run install if Node was missing.
+- Harpoon: “No write since last change”
+  - Fixed: we auto-write modified buffers when switching targets; hidden+confirm enabled.
+- Outline colors look dim
+  - With Tokyo Night active, Aerial/Navic pick bright palette; if you override the theme, re-open Aerial or run :colorscheme to re-trigger highlights.
+
+## 💡 Tips
+- Visual line and column indentation with Tab/Shift-Tab makes formatting blocks trivial.
+- Spectre is the fastest way to run safe project-wide replacements with preview.
+- Use Harpoon + Telescope for jump navigation across active files.
+- Toggle the minimap only when needed to save space: :MinimapToggle
 
 ## 🧪 Philosophy
 - Stability first, performance by default, clean visuals, and discoverability
