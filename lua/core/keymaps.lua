@@ -38,6 +38,8 @@ map("x", "p", '"_dP', { desc = "Paste (no register pollution)" })
 -- 📐 Better indentation
 map("x", "<", "<gv", { desc = "Indent left and reselect" })
 map("x", ">", ">gv", { desc = "Indent right and reselect" })
+map("x", "<Tab>", ">gv", { desc = "Indent selection (Tab)" })
+map("x", "<S-Tab>", "<gv", { desc = "Outdent selection (Shift-Tab)" })
 
 -- 🔄 Move lines up/down
 map("n", "<A-j>", "<cmd>m .+1<CR>==", { desc = "Move line down" })

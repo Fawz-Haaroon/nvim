@@ -15,6 +15,17 @@ dependencies = {
     opts = function()
         local colors = require("catppuccin.palettes").get_palette("mocha")
         
+        -- Attach breadcrumbs (navic) when available
+        local function with_navic_on_attach(on_attach)
+            return function(client, bufnr)
+                if type(on_attach) == 'function' then pcall(on_attach, client, bufnr) end
+                local ok, navic = pcall(require, 'nvim-navic')
+                if ok and client.server_capabilities.documentSymbolProvider then
+                    pcall(navic.attach, client, bufnr)
+                end
+            end
+        end
+
         return {
             -- 🎨 Enhanced diagnostics
             diagnostics = {

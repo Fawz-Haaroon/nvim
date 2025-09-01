@@ -84,7 +84,9 @@ return {
       return string.format('%.2f %s', s, units[i])
     end
 
-    require('lualine').setup {
+local navic_ok, navic = pcall(require, 'nvim-navic')
+
+require('lualine').setup {
       options = {
         theme = neon,
         section_separators = { left = '', right = '' },
@@ -122,6 +124,19 @@ return {
             -- ensure filename ends with a right-pointing arrow of the same yellow color
             separator = { right = '' },
             padding = { left = 1, right = 1 },
+          },
+          -- Breadcrumbs via navic
+          {
+            function()
+              if navic_ok and navic.is_available() then
+                return navic.get_location()
+              end
+              return ''
+            end,
+            cond = function()
+              return navic_ok and navic.is_available()
+            end,
+            color = { fg = fg, bg = bg },
           },
         },
 
