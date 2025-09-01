@@ -22,11 +22,37 @@ return {
     require("aerial").setup(opts)
 
     -- Bright, distinct colors for Aerial kinds (avoid comment-like colors)
-    local function set_aerial_colors()
+    local function palette_tokyonight()
+      local ok, tn = pcall(require, "tokyonight.colors")
+      if ok then
+        local t = tn.setup()
+        return {
+          yellow = t.yellow,
+          sky = t.blue2 or t.blue,
+          red = t.red,
+          green = t.green,
+          peach = t.orange,
+          mauve = t.purple,
+          sapphire = t.cyan,
+          pink = t.magenta,
+        }
+      end
+    end
+    local function palette_catppuccin()
       local ok, cat = pcall(require, "catppuccin.palettes")
-      local c = ok and cat.get_palette("mocha") or {
-        yellow = "#FFFF00", sky = "#89DCEB", red = "#F38BA8", green = "#A6E3A1",
-        peach = "#FAB387", mauve = "#CBA6F7", sapphire = "#74C7EC", pink = "#F5C2E7",
+      if ok then
+        local c = cat.get_palette("mocha")
+        return {
+          yellow = c.yellow, sky = c.sky, red = c.red, green = c.green,
+          peach = c.peach, mauve = c.mauve, sapphire = c.sapphire, pink = c.pink,
+        }
+      end
+    end
+    local function set_aerial_colors()
+      local colors_name = vim.g.colors_name or ""
+      local c = (colors_name:match("^tokyonight")) and palette_tokyonight() or palette_catppuccin() or {
+        yellow = "#E0AF68", sky = "#7AA2F7", red = "#F7768E", green = "#9ECE6A",
+        peach = "#FF9E64", mauve = "#BB9AF7", sapphire = "#7DCFFF", pink = "#F7768E",
       }
       local set = vim.api.nvim_set_hl
       local kinds = {
