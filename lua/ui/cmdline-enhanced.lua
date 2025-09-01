@@ -28,22 +28,28 @@ return {
         reject_key = "<C-c>",
       })
       
-      -- Enhanced pipeline with safe fuzzy matching (no Python dependency)
-      -- NOTE: Use cmdline_getcompletion_pipeline instead of cmdline_pipeline to
-      -- avoid invoking user-defined command completions. This prevents errors like
-      -- "Ambiguous use of user-defined command" when typing partial commands
-      -- (e.g. :Lsp matching LspInstall/LspUninstall).
-      wilder.set_option("pipeline", {
-        wilder.branch(
-          require('wilder.shim').call('wilder#cmdline#getcompletion_pipeline', {
-            language = 'vim',
-            fuzzy = 1,
-          }),
-          wilder.vim_search_pipeline({
-            fuzzy = 1,
-          })
-        ),
-      })
+      -- Enhanced pipeline with fallback when remote functions are not registered
+      local has_remote = (vim.fn.exists('*wilder#cmdline#getcompletion_pipeline') == 1)
+      if has_remote then
+        -- Use shim to call the Vim/remote implementation
+        wilder.set_option("pipeline", {
+          wilder.branch(
+            require('wilder.shim').call('wilder#cmdline#getcompletion_pipeline', {
+              language = 'vim',
+              fuzzy = 1,
+            }),
+            wilder.vim_search_pipeline({ fuzzy = 1 })
+          ),
+        })
+      else
+        -- Fallback to pure-Lua pipelines to avoid _wilder_init or Python init errors
+        wilder.set_option("pipeline", {
+          wilder.branch(
+            wilder.cmdline_pipeline({ language = 'vim', fuzzy = 1 }),
+            wilder.vim_search_pipeline({ fuzzy = 1 })
+          ),
+        })
+      end
       
       -- 🎨 Beautiful dropdown renderer with colors
       wilder.set_option(
