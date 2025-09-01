@@ -160,7 +160,11 @@ map("n", "<leader>u6", function() vim.cmd('colorscheme kanagawa-wave') end, { de
 map("n", "<leader>u7", function() vim.cmd('colorscheme synthwave84') end, { desc = "🌌 Synthwave84" })
 map("n", "<leader>u8", function() vim.cmd('colorscheme material') end, { desc = "💫 Material" })
 
--- 🪟 Transparency toggle (matches Hyprland glass aesthetic)
+-- Also provide Ctrl shortcuts as requested: C-t opens theme menu; C-T toggles transparency
+map("n", "<C-t>", "<cmd>Themery<cr>", { desc = "Theme menu (Themery)" })
+map("n", "<C-S-t>", function() require("ui.transparency").toggle() end, { desc = "Toggle UI Transparency" })
+
+-- 🪟 Transparency toggle (leader)
 map("n", "<leader>uT", function()
   require("ui.transparency").toggle()
 end, { desc = "🪟 Toggle UI Transparency" })
