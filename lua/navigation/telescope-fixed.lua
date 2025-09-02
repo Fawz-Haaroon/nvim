@@ -9,7 +9,6 @@ return {
         "nvim-lua/plenary.nvim",
         { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
         "nvim-tree/nvim-web-devicons",
-        "nvim-telescope/telescope-media-files.nvim",
         "nvim-telescope/telescope-ui-select.nvim",
         { "nvim-telescope/telescope-file-browser.nvim", dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" } },
     },
@@ -45,9 +44,6 @@ return {
         { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "📊 Git Status" },
         { "<leader>gf", "<cmd>Telescope git_files<cr>", desc = "📂 Git Files" },
         
-        -- Media & Images
-        { "<leader>fp", "<cmd>Telescope media_files<cr>", desc = "🖼️ Media Files" },
-        
         -- Search patterns
         { "<leader>/", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "🔍 Search in Buffer" },
         { "<leader>f/", "<cmd>Telescope search_history<cr>", desc = "🔍 Search History" },
@@ -56,13 +52,34 @@ return {
         local actions = require("telescope.actions")
         
         return {
-            defaults = {
-                prompt_prefix = " 🔍 ",
-                selection_caret = " ➤ ",
-                path_display = { "truncate" },
-                sorting_strategy = "ascending",
-                layout_strategy = "horizontal",
-                layout_config = {
+            defaults = (function()
+                local actions_state = require("telescope.actions.state")
+                local function open_with_image_nvim(prompt_bufnr)
+                    local entry = actions_state.get_selected_entry()
+                    if not entry or not entry.path then return end
+                    actions.close(prompt_bufnr)
+                    vim.schedule(function()
+                        vim.cmd("tabnew")
+                        local win = vim.api.nvim_get_current_win()
+                        local buf = vim.api.nvim_get_current_buf()
+                        local ok, image_api = pcall(require, "image")
+                        if ok and image_api and image_api.hijack_buffer then
+                            image_api.hijack_buffer(entry.path, win, buf, {
+                                max_width_window_percentage = 100,
+                                max_height_window_percentage = 100,
+                            })
+                        else
+                            vim.cmd("edit " .. vim.fn.fnameescape(entry.path))
+                        end
+                    end)
+                end
+                return {
+                    prompt_prefix = " 🔍 ",
+                    selection_caret = " ➤ ",
+                    path_display = { "truncate" },
+                    sorting_strategy = "ascending",
+                    layout_strategy = "horizontal",
+                    layout_config = {
                     horizontal = {
                         prompt_position = "top",
                         preview_width = 0.55,
@@ -111,6 +128,7 @@ return {
                         ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
                         ["<C-l>"] = actions.complete_tag,
                         ["<C-_>"] = actions.which_key, -- keys from pressing <C-/>
+                        ["<C-p>"] = require("telescope.actions.layout").toggle_preview,
                     },
                     n = {
                         ["<esc>"] = actions.close,
@@ -136,130 +154,47 @@ return {
                         ["<PageUp>"] = actions.results_scrolling_up,
                         ["<PageDown>"] = actions.results_scrolling_down,
                         ["?"] = actions.which_key,
+                        ["p"] = require("telescope.actions.layout").toggle_preview,
                     },
                 },
                 
-                -- Enhanced preview configuration
-                preview = {
-                    mime_hook = function(filepath, bufnr, opts)
-                        local function file_ext(path)
-                            return (path or ""):lower():match("%.([%w]+)$") or ""
-                        end
-                        local function is_image_ext(ext)
-                            return vim.tbl_contains({ "png", "jpg", "jpeg", "gif", "webp", "avif", "svg", "bmp" }, ext)
-                        end
-
-                        local ext = file_ext(filepath)
-                        if ext == "" then return end
-
-                        local term = vim.api.nvim_open_term(bufnr, {})
-                        local function send_lines(data)
-                            if not data then return end
-                            for _, d in ipairs(data) do
-                                if d ~= "" then
-                                    vim.api.nvim_chan_send(term, d .. "\r\n")
-                                end
-                            end
-                        end
-
-                        -- Manage preview jobs per buffer to avoid races
-                        _G.__telescope_preview_jobs = _G.__telescope_preview_jobs or {}
-                        local jobs = _G.__telescope_preview_jobs
-                        if jobs[bufnr] then pcall(vim.fn.jobstop, jobs[bufnr]) end
-
-                        -- Compute preview pane size
-                        local wins = vim.fn.win_findbuf(bufnr)
-                        local preview_win = (wins and wins[1]) or 0
-                        local width = (preview_win ~= 0) and vim.api.nvim_win_get_width(preview_win) or math.floor(vim.o.columns * 0.5)
-                        local height = (preview_win ~= 0) and vim.api.nvim_win_get_height(preview_win) or math.floor(vim.o.lines * 0.5)
-                        width = math.max(10, width - 2)
-                        height = math.max(5, height - 2)
-                        local size_arg = string.format("%dx%d", width, height)
-
-                        local function run(cmd_tbl, on_exit)
-                            jobs[bufnr] = vim.fn.jobstart(cmd_tbl, {
-                                stdout_buffered = false,
-                                on_stdout = function(_, data, _)
-                                    send_lines(data)
-                                end,
-                                on_exit = function(id, code)
-                                    if on_exit then on_exit(id, code) end
-                                    jobs[bufnr] = nil
-                                end,
-                            })
-                        end
-
-                        if is_image_ext(ext) and vim.fn.executable("chafa") == 1 then
-                            run({ "chafa", "--size=" .. size_arg, "--animate=off", filepath })
-                            return
-                        end
-
-                        if ext == "pdf" and vim.fn.executable("pdftoppm") == 1 and vim.fn.executable("chafa") == 1 then
-                            local tmp_base = string.format("/tmp/ts_prev_%d", vim.loop.hrtime())
-                            vim.fn.jobstart({ "pdftoppm", "-png", "-singlefile", "-f", "1", filepath, tmp_base }, {
-                                on_exit = function(_, code)
-                                    if code == 0 then
-                                        run({ "chafa", "--size=" .. size_arg, tmp_base .. ".png" }, function()
-                                            pcall(vim.loop.fs_unlink, tmp_base .. ".png")
-                                        end)
-                                    else
-                                        send_lines({ "[pdftoppm failed]", filepath })
-                                    end
-                                end,
-                            })
-                            return
-                        end
-
-                        if vim.tbl_contains({ "mp4", "mkv", "webm", "mov", "avi" }, ext) and vim.fn.executable("ffmpeg") == 1 and vim.fn.executable("chafa") == 1 then
-                            local tmp_img = string.format("/tmp/ts_prev_%d.jpg", vim.loop.hrtime())
-                            vim.fn.jobstart({ "ffmpeg", "-y", "-loglevel", "error", "-ss", "1", "-i", filepath, "-frames:v", "1", tmp_img }, {
-                                on_exit = function(_, code)
-                                    if code == 0 then
-                                        run({ "chafa", "--size=" .. size_arg, tmp_img }, function()
-                                            pcall(vim.loop.fs_unlink, tmp_img)
-                                        end)
-                                    else
-                                        send_lines({ "[ffmpeg failed]", filepath })
-                                    end
-                                end,
-                            })
-                            return
-                        end
-
-                        -- Fallback note
-                        send_lines({ "[No previewer available for this type]", filepath })
-                    end,
-                },
-            },
+            }
+            end)(),
             
             pickers = {
                 find_files = {
-                    hidden = true,
-                    find_command = { 
-                        "rg", 
-                        "--files", 
-                        "--hidden", 
-                        "--glob", "!**/.git/*",
-                        "--glob", "!**/node_modules/*",
-                        "--glob", "!**/.next/*",
-                        "--glob", "!**/dist/*",
-                        "--glob", "!**/build/*"
-                    },
-                    previewer = true,
+                    hidden = false,
+                    find_command = (function()
+                        local excludes = {
+                            ".git", "node_modules", ".next", "dist", "build", ".cache", ".cache/fastfetch",
+                        }
+                        if vim.fn.executable("fd") == 1 then
+                            local cmd = { "fd", "--type", "f", "--strip-cwd-prefix" }
+                            for _, e in ipairs(excludes) do table.insert(cmd, "--exclude"); table.insert(cmd, e) end
+                            return cmd
+                        else
+                            local cmd = { "rg", "--files" }
+                            local function add_glob(g) table.insert(cmd, "--glob"); table.insert(cmd, g) end
+                            add_glob("!**/.git/*"); add_glob("!**/node_modules/*"); add_glob("!**/.next/*");
+                            add_glob("!**/dist/*"); add_glob("!**/build/*"); add_glob("!**/.cache/**"); add_glob("!**/.cache/fastfetch/**")
+                            return cmd
+                        end
+                    end)(),
+                    previewer = false,
                 },
                 
                 live_grep = {
-                    additional_args = function(opts)
-                        return { "--hidden", "--glob", "!**/.git/*" }
+                    additional_args = function()
+                        return {}
                     end,
-                    previewer = true,
+                    previewer = false,
                 },
                 
                 grep_string = {
-                    additional_args = function(opts)
-                        return { "--hidden", "--glob", "!**/.git/*" }
+                    additional_args = function()
+                        return {}
                     end,
-                    previewer = true,
+                    previewer = false,
                 },
                 
                 buffers = {
@@ -363,13 +298,14 @@ return {
     config = function(_, opts)
         local telescope = require("telescope")
         telescope.setup(opts)
+
+
         
-        -- Load all extensions
+        -- Load extensions (lightweight)
         telescope.load_extension("fzf")
         telescope.load_extension("ui-select")
-        telescope.load_extension("media_files")
         telescope.load_extension("file_browser")
         
-        vim.notify("🔭 Telescope loaded with image preview!", vim.log.levels.INFO, { title = "🔍 Search" })
+        vim.notify("🔭 Telescope ready.", vim.log.levels.INFO, { title = "🔍 Search" })
     end,
 }
