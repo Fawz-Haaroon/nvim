@@ -43,7 +43,7 @@ More details: see docs/INSTALL.md
 - Debugging: nvim‑dap + UI
 - UI polish: Noice/Notify/Dressing, lualine, devicons, indent guides, custom tabline
 
-For keybindings, workflows, troubleshooting, and tips, see docs/WORKFLOWS.md.
+For keybindings, workflows, troubleshooting, and tips, see :help lexitron-megasheet (run :helptags ~/.config/nvim/doc once).
 
 ## 🧰 Requirements
 - Linux + Kitty (recommended for inline images)
