@@ -4,7 +4,9 @@
 
 return {
     "stevearc/oil.nvim",
-    lazy = false,
+    enabled = true,
+    lazy = true,
+    cmd = { "Oil" },
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
         columns = {
@@ -131,8 +133,24 @@ return {
         },
     },
     keys = {
-        { "-", "<CMD>Oil<CR>", desc = "Open parent directory" },
-        { "<leader>fo", function() require("oil").open() end, desc = "Open directory editor (Oil)" },
-        { "<leader>fO", function() require("oil").open_float() end, desc = "Open floating directory editor (Oil)" },
+        { "-", function()
+            -- Only open oil if we're not in a special buffer
+            local ft = vim.bo.filetype
+            if ft ~= 'snacks_dashboard' and ft ~= 'dashboard' and ft ~= 'snacks_explorer' then
+                require("oil").open()
+            end
+        end, desc = "Open parent directory" },
+        { "<leader>fo", function()
+            local ft = vim.bo.filetype
+            if ft ~= 'snacks_dashboard' and ft ~= 'dashboard' then
+                require("oil").open()
+            end
+        end, desc = "Open directory editor (Oil)" },
+        { "<leader>fO", function()
+            local ft = vim.bo.filetype
+            if ft ~= 'snacks_dashboard' and ft ~= 'dashboard' then
+                require("oil").open_float()
+            end
+        end, desc = "Open floating directory editor (Oil)" },
     },
 }

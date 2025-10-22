@@ -103,6 +103,24 @@ map("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window wi
 map("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
+-- 📂 FILE EXPLORER
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Oil file explorer (primary)
+map("n", "<leader>o", function()
+    require("oil").open()
+end, { desc = "Oil File Browser" })
+
+map("n", "<leader>O", function()
+    require("oil").open_float()
+end, { desc = "Oil Float" })
+
+-- Use - for parent directory in Oil
+map("n", "-", function()
+    require("oil").open()
+end, { desc = "Open parent directory" })
+
+-- ═══════════════════════════════════════════════════════════════════════════════
 -- 📂 TAB MANAGEMENT
 -- ═══════════════════════════════════════════════════════════════════════════════
 
@@ -177,17 +195,14 @@ map("n", "<leader>q", function() vim.diagnostic.setloclist() end, { desc = "Diag
 -- 🏆 CP shortcuts (preserving your existing bindings)
 map("n", "<leader>cp", function()
     -- This will be connected to your CP module
-    vim.notify("🏆 CP Template - Ready!", vim.log.levels.INFO)
 end, { desc = "Copy C++ template" })
 
 map("n", "<leader>cc", function()
     -- This will be connected to your CP module  
-    vim.notify("⚡ Compiling...", vim.log.levels.INFO)
 end, { desc = "Compile & run C++23" })
 
 map("n", "<leader>sp", function()
     -- This will be connected to your CP module
-    vim.notify("📊 Input/Output windows toggled", vim.log.levels.INFO)  
 end, { desc = "Toggle input/output windows" })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -212,5 +227,4 @@ map("c", "<C-n>", "<nop>", opts)
 map("n", "<leader>w", "<C-w>", { desc = "Window commands" })
 map("n", "<leader><leader>", "<C-^>", { desc = "Switch to last buffer" })
 
--- Success notification
-vim.notify("⌨️  Keymaps loaded successfully!", vim.log.levels.INFO, { title = "🎯 Keymaps" })
+-- Keymaps loaded silently

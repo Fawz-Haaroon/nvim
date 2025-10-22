@@ -14,16 +14,57 @@ return {
             },
         },
         routes = {
+            -- Hide noisy written/yank messages
             {
-                filter = {
+                filter = { event = "msg_show", any = {
+                    { find = "%d+L, %d+B" },
+                    { find = "; after #%d+" },
+                    { find = "; before #%d+" },
+                    { find = "search hit BOTTOM" },
+                    { find = "search hit TOP" },
+                    { find = "Pattern not found" },
+                }},
+                view = "mini",
+            },
+            -- Route warnings and errors to snacks when available
+            {
+                filter = { 
+                    event = "notify",
+                    find = "warn",
+                },
+                opts = { skip = true },
+                cond = function()
+                    -- Let snacks handle warnings/errors if available
+                    return pcall(require, "snacks.notifier")
+                end,
+            },
+            {
+                filter = { 
+                    event = "notify",
+                    find = "error",
+                },
+                opts = { skip = true },
+                cond = function()
+                    -- Let snacks handle warnings/errors if available
+                    return pcall(require, "snacks.notifier")
+                end,
+            },
+            -- Show LSP progress in mini view
+            {
+                filter = { event = "lsp", kind = "progress" },
+                opts = { skip = false },
+            },
+            -- Keep important system messages
+            {
+                filter = { 
                     event = "msg_show",
                     any = {
-                        { find = "%d+L, %d+B" },
-                        { find = "; after #%d+" },
-                        { find = "; before #%d+" },
+                        { find = "E%d+:" },
+                        { find = "Error" },
+                        { find = "Warning" },
                     },
                 },
-                view = "mini",
+                view = "notify",
             },
         },
         presets = {

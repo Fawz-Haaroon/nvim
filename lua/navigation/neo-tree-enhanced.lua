@@ -4,6 +4,7 @@
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
+  enabled = false, -- DISABLED: Using snacks.explorer instead
   branch = "v3.x",
   cmd = "Neotree",
   keys = {
@@ -347,6 +348,6 @@ return {
     -- Trigger the highlight setup
     vim.cmd("doautocmd ColorScheme")
     
-    vim.notify("🌳 Enhanced Neo-tree loaded with curved aesthetics!", vim.log.levels.INFO, { title = "🎨 UI" })
+    -- Neo-tree configured silently
   end,
 }

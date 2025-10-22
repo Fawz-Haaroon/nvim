@@ -26,7 +26,8 @@ return {
     { "<leader>7",  function() GoToBuffer(7) end,                    desc = "Go to Buffer 7" },
     { "<leader>8",  function() GoToBuffer(8) end,                    desc = "Go to Buffer 8" },
     { "<leader>9",  function() GoToBuffer(9) end,                    desc = "Go to Buffer 9" },
-    { "<leader>0",  function() require('alpha').start() end,         desc = "Go Home (Dashboard)" },
+    -- Dashboard toggle is now handled in snacks-dashboard.lua keymaps
+    -- { "<leader>0",  function() ... end, desc = "Go to Dashboard" },
   },
   init = function()
     -- Colors
@@ -78,7 +79,7 @@ return {
       redraw_pending = true
       vim.defer_fn(function()
         redraw_pending = false
-        if vim.bo.filetype ~= 'alpha' and vim.bo.filetype ~= 'dashboard' then
+        if vim.bo.filetype ~= 'snacks_dashboard' and vim.bo.filetype ~= 'dashboard' then
           pcall(vim.cmd, 'redrawtabline')
         end
       end, 60)
@@ -90,7 +91,7 @@ return {
       for _, b in ipairs(bufs) do
         local bt = vim.api.nvim_buf_get_option(b.bufnr, 'buftype')
         local ft = vim.api.nvim_buf_get_option(b.bufnr, 'filetype')
-        if bt == '' and ft ~= 'alpha' and ft ~= 'dashboard' and ft ~= 'qf' and ft ~= 'help' and ft ~= 'gitcommit' then
+        if bt == '' and ft ~= 'snacks_dashboard' and ft ~= 'dashboard' and ft ~= 'qf' and ft ~= 'help' and ft ~= 'gitcommit' then
           table.insert(out, b)
         end
       end
@@ -108,7 +109,12 @@ return {
       local listed = get_listed_buffers()
       if #listed <= 1 then
         vim.cmd((force and 'bdelete! ' or 'bdelete ') .. bufnr)
-        vim.schedule(function() pcall(function() require('alpha').start() end) end)
+        vim.schedule(function()
+          local ok, snacks = pcall(require, 'snacks')
+          if ok and snacks.dashboard then
+            snacks.dashboard()
+          end
+        end)
       else
         vim.cmd((force and 'bdelete! ' or 'bdelete ') .. bufnr)
       end
@@ -328,10 +334,31 @@ return {
       end,
     })
 
-    vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, {
+    -- Always show tabline except on dashboard
+    vim.o.showtabline = 2  -- Always show by default
+    
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = {'snacks_dashboard', 'dashboard'},
+      callback = function()
+        vim.o.showtabline = 0
+      end,
+    })
+    -- Hard-restore tabline when entering any non-dashboard buffer
+    vim.api.nvim_create_autocmd('BufEnter', {
       callback = function()
         local ft = vim.bo.filetype
-        if ft == 'alpha' or ft == 'dashboard' then vim.o.showtabline = 0 else vim.o.showtabline = 2 end
+        if ft ~= 'snacks_dashboard' and ft ~= 'dashboard' then
+          vim.o.showtabline = 2
+        end
+      end,
+    })
+    
+    vim.api.nvim_create_autocmd('BufLeave', {
+      callback = function()
+        local ft = vim.bo.filetype
+        if ft == 'snacks_dashboard' or ft == 'dashboard' then
+          vim.o.showtabline = 2  -- Restore when leaving dashboard
+        end
       end,
     })
     vim.api.nvim_create_autocmd({ 'WinEnter', 'TabEnter', 'BufEnter', 'BufAdd', 'BufDelete', 'BufWritePost', 'VimResized' }, {

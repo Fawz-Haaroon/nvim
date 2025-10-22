@@ -10,6 +10,8 @@ return {
         "rafamadriz/friendly-snippets",
         "L3MON4D3/LuaSnip",
         "onsails/lspkind.nvim",
+        "folke/lazydev.nvim",
+        "moyiz/blink-emoji.nvim",
     },
     opts = function()
         local colors = require("catppuccin.palettes").get_palette("mocha")
@@ -80,7 +82,80 @@ return {
             
             -- ⚙️ Simplified Sources (fix circular dependency)
             sources = {
-                default = { "lsp", "path", "snippets", "buffer" },
+                default = {
+                    "lazydev",
+                    "lsp",
+                    "omni",
+                    "emoji",
+                    "snippets",
+                    "path",
+                    "buffer"
+                },
+                providers = {
+                    lazydev = {
+                        name = "lazydev",
+                        enabled = true,
+                        module = "lazydev.integrations.blink",
+                        score_offset = 100,
+                    },
+                    lsp = {
+                        name = "lsp",
+                        enabled = true,
+                        module = "blink.cmp.sources.lsp",
+                        score_offset = 95,
+                    },
+                    omni = {
+                        name = "omni",
+                        enabled = function()
+                            return vim.bo.omnifunc ~= "v:lua.vim.lsp.omnifunc"
+                        end,
+                        module = "blink.cmp.sources.complete_func",
+                        score_offset = 90,
+                        opts = {
+                            complete_func = function()
+                                return vim.bo.omnifunc
+                            end,
+                        },
+                    },
+                    emoji = {
+                        name = "emoji",
+                        enabled = true,
+                        module = "blink-emoji",
+                        score_offset = 85,
+                        opts = {
+                            insert = true,
+                        },
+                    },
+                    snippets = {
+                        name = "snippets",
+                        enabled = true,
+                        module = "blink.cmp.sources.snippets",
+                        score_offset = 80,
+                        max_items = 15,
+                    },
+                    path = {
+                        name = "path",
+                        enabled = true,
+                        module = "blink.cmp.sources.path",
+                        score_offset = 10,
+                        fallbacks = { "snippets", "buffer" },
+                        opts = {
+                            trailing_slash = true,
+                            label_trailing_slash = true,
+                            get_cwd = function(context)
+                                return vim.fn.expand(("#%d:p:h"):format(context.bufnr))
+                            end,
+                            show_hidden_files_by_default = true,
+                        },
+                    },
+                    buffer = {
+                        name = "buffer",
+                        enabled = true,
+                        module = "blink.cmp.sources.buffer",
+                        score_offset = 5,
+                        max_items = 5,
+                    },
+                },
             },
             
             -- 🔥 Advanced Completion Behavior
@@ -207,9 +282,12 @@ return {
             
             -- ⚡ Enhanced Fuzzy Matching
             fuzzy = {
-                use_frecency = true,
+                implementation = "prefer_rust",
                 use_proximity = true,
-                sorts = { "score", "sort_text", "label", "kind" },
+                sorts = { "score", "sort_text" },
+                frecency = {
+                    enabled = true,
+                },
             },
         }
     end,
@@ -287,7 +365,6 @@ return {
             callback = setup_enhanced_highlights,
         })
         
-        -- 🎆 Success notification
-        vim.notify("⚡ Blink Enhanced - VS Code-like completion ready!", vim.log.levels.INFO, { title = "🚀 Completion" })
+        -- Silent load: notify only on error
     end,
 }

@@ -35,17 +35,46 @@ function M.setup()
         map("n", "<leader>h", "<cmd>echo 'Harpoon not available'<cr>", { desc = "Harpoon Menu" })
     end
     
-    -- 🌳 NEO-TREE - File Explorer (Primary)
-    map("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "🌳 Toggle Neo-tree" })
-    map("n", "<leader>ge", "<cmd>Neotree float git_status<cr>", { desc = "🔀 Git Status Tree" })
+    -- 📁 FILE EXPLORER
+    -- <leader>e -> Snacks Explorer, <leader>o -> Oil
+    map("n", "<leader>e", function()
+      local ok, s = pcall(require, "snacks")
+      if ok and s.explorer then s.explorer() else vim.cmd("Oil") end
+    end, { desc = "Explorer (Snacks)" })
+    map("n", "<leader>E", function()
+      local ok, s = pcall(require, "snacks")
+      if ok and s.explorer then s.explorer({ cwd = vim.fn.getcwd() }) else vim.cmd("Oil") end
+    end, { desc = "Explorer (CWD)" })
+    -- Git status: keep Neogit shortcut
+    map("n", "<leader>ge", "<cmd>Neogit kind=split<cr>", { desc = "🔀 Git Status" })
+
+    -- 🗂️ WORKSPACES
+    map("n", "<leader>wn", "<cmd>WorkspaceNew<cr>", { desc = "Workspace: New (save current)" })
+    map("n", "<leader>ws", function()
+      vim.ui.input({ prompt = 'Workspace name (blank = cwd-derived): ' }, function(name)
+        if name and name ~= '' then
+          vim.cmd('WorkspaceSave ' .. name)
+        else
+          vim.cmd('WorkspaceSave')
+        end
+      end)
+    end, { desc = "Workspace: Save to name" })
+    map("n", "<leader>wl", "<cmd>WorkspaceList<cr>", { desc = "Workspace: List/Open" })
+    map("n", "<leader>wo", "<cmd>WorkspaceOpen<cr>", { desc = "Workspace: Open by name" })
+    map("n", "<leader>wd", "<cmd>WorkspaceDelete<cr>", { desc = "Workspace: Delete" })
+    map("n", "<leader>wr", "<cmd>WorkspaceRename<cr>", { desc = "Workspace: Rename" })
+    map("n", "<leader>wS", "<cmd>WorkspaceSessions<cr>", { desc = "Workspace: Sessions in current" })
     
     -- 📁 OIL - Directory Editor 
     map("n", "<leader>o", "<cmd>Oil<cr>", { desc = "📁 Open Oil" })
     
-    -- 💾 SESSIONS
-    map("n", "<leader>qs", "<cmd>SessionManager save_current_session<cr>", { desc = "Save Session" })
-    map("n", "<leader>ql", "<cmd>SessionManager load_session<cr>", { desc = "Load Session" })
-    map("n", "<leader>qd", "<cmd>SessionManager delete_session<cr>", { desc = "Delete Session" })
+-- 💾 SESSIONS (tmux-style)
+    map("n", "<leader>ss", "<cmd>SaveSession<cr>", { desc = "Save Session" })
+    map("n", "<leader>sl", "<cmd>SessionList<cr>", { desc = "List/Search Sessions" })
+    map("n", "<leader>sd", "<cmd>DeleteSession<cr>", { desc = "Delete Session" })
+    map("n", "<leader>sS", "<cmd>SessionSnapshotSave<cr>", { desc = "Save Snapshot" })
+    map("n", "<leader>sR", "<cmd>SessionSnapshotList<cr>", { desc = "Restore Snapshot" })
+    map("n", "<leader>sD", "<cmd>SessionSnapshotDelete<cr>", { desc = "Delete Snapshot" })
     map("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit All" })
     
     -- 🔧 CODE ACTIONS & LSP
@@ -193,7 +222,7 @@ function M.setup()
     map("n", "<leader>R", "<cmd>source $MYVIMRC<cr>", { desc = "Reload Config" })
     map("n", "<leader><leader>", "<C-^>", { desc = "Switch to Last Buffer" })
     
-    vim.notify("🎯 Functional keymaps loaded - All bindings should work!", vim.log.levels.INFO, { title = "🚀 Keymaps" })
+    -- Silent load: notify only on error
 end
 
 return M

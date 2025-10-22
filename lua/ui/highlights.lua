@@ -110,12 +110,16 @@ function M.setup()
         DiagnosticFloatingInfo = { fg = colors.blue },
         DiagnosticFloatingHint = { fg = colors.teal },
         
-        -- 🔥 Alpha Dashboard Modern Styling
-        AlphaShortcut = { fg = colors.peach, bold = true },
-        AlphaHeader = { fg = colors.lavender },
-        AlphaHeaderLabel = { fg = colors.blue },
-        AlphaButtons = { fg = colors.green },
-        AlphaFooter = { fg = colors.overlay1 },
+        -- 🍿 Snacks Dashboard Modern Styling
+        SnacksDashboardKey = { fg = colors.peach, bold = true },
+        SnacksDashboardHeader = { fg = colors.lavender },
+        SnacksDashboardHeaderLabel = { fg = colors.blue },
+        SnacksDashboardDesc = { fg = colors.green },
+        SnacksDashboardIcon = { fg = colors.green },
+        SnacksDashboardFooter = { fg = colors.overlay1 },
+        SnacksDashboardStats = { fg = colors.blue, bold = true },
+        SnacksDashboardStatsText = { fg = colors.text },
+        SnacksDashboardWorkspaceHint = { fg = colors.overlay1, italic = true },
         
         -- 🎨 Window Separators (Curved appearance)
         WinSeparator = { fg = colors.surface1 },
@@ -229,5 +233,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 -- Setup on load
 vim.defer_fn(M.setup, 100)
+
+-- Don't load this as a lazy.nvim plugin - it's a utility module
+if vim.g._loading_lazy_plugins then
+  return {}
+end
 
 return M

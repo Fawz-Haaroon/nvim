@@ -306,6 +306,6 @@ return {
         telescope.load_extension("ui-select")
         telescope.load_extension("file_browser")
         
-        vim.notify("🔭 Telescope ready.", vim.log.levels.INFO, { title = "🔍 Search" })
+        -- Silent load: notify only on error
     end,
 }

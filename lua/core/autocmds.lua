@@ -1,6 +1,15 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
---  🔄 AUTOCMDS - Revolutionary User Experience
+--  🔄 CORE AUTOCOMMANDS - Professional Automation
 -- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Remove the extra winbar line under the tabline in normal buffers
+vim.api.nvim_create_autocmd({"BufWinEnter", "WinEnter", "BufEnter"}, {
+    callback = function()
+        local win = vim.api.nvim_get_current_win()
+        -- Always keep winbar empty (we handle dashboard spacing inside the dashboard itself)
+        pcall(function() vim.wo[win].winbar = "" end)
+    end,
+})
 
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
@@ -179,12 +188,10 @@ autocmd("FileType", {
         local opts = { buffer = true, silent = true }
         vim.keymap.set("n", "<leader>cc", function()
             -- This will connect to your CP module
-            vim.notify("⚡ Compiling C++...", vim.log.levels.INFO)
         end, vim.tbl_extend("force", opts, { desc = "Compile C++" }))
         
         vim.keymap.set("n", "<leader>cr", function()
             -- This will connect to your CP module  
-            vim.notify("🏃 Running...", vim.log.levels.INFO)
         end, vim.tbl_extend("force", opts, { desc = "Run C++" }))
     end,
 })
@@ -238,10 +245,10 @@ autocmd("VimLeavePre", {
         -- Auto-save session (will integrate with session plugin)
         if vim.fn.argc() == 0 then
             -- Only for empty starts (not file-specific)
-            vim.notify("💾 Session saved", vim.log.levels.INFO)
+            -- no success notification
         end
     end,
 })
 
 -- Success notification
-vim.notify("🔄 Autocmds loaded - Revolutionary UX ready!", vim.log.levels.INFO, { title = "⚡ Core" })
+-- Autocmds loaded silently

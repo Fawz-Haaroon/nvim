@@ -52,6 +52,9 @@ vim.deprecate = function() end
   end
 end
 
+-- Disable default intro screen
+vim.opt.shortmess:append("I")
+
 -- Bootstrap the perfect configuration
 require("core")
 require("ui.highlights")
@@ -62,6 +65,4 @@ vim.defer_fn(function()
     require("ui.workspace-tracker").setup()
 end, 100)
 
-vim.schedule(function()
-    vim.notify("🌈 The Perfect Neovim - Ready!", vim.log.levels.INFO, { title = "🚀 Loaded" })
-end)
+-- Config loaded silently - only show errors

@@ -16,7 +16,7 @@ return {
         },
     },
     opts = {
-        timeout = 2000,  -- Reduced timeout to 2 seconds
+        timeout = 3000,  -- Slightly longer for important messages
         background_colour = "#000000",
         fps = 60,
         icons = {
@@ -26,7 +26,7 @@ return {
             TRACE = "✎",
             WARN = "",
         },
-        level = 2,
+        level = vim.log.levels.INFO,  -- Show more messages since snacks will handle filtering
         minimum_width = 50,
         render = "wrapped-compact",
         stages = "fade_in_slide_out",
@@ -42,7 +42,8 @@ return {
             return math.floor(vim.o.columns * 0.75)
         end,
         on_open = function(win)
-            vim.api.nvim_win_set_config(win, { zindex = 100 })
+            -- Lower priority than snacks notifications
+            vim.api.nvim_win_set_config(win, { zindex = 90 })
         end,
     },
     init = function()

@@ -63,4 +63,4 @@ highlight("LineNr", { fg = colors.dark_gray })
 highlight("CursorLineNr", { fg = colors.purple, style = "bold" })
 
 -- This is a template - the main theme is still Catppuccin
-vim.notify("🎨 Lexitron custom theme template loaded", vim.log.levels.INFO)
+-- silent: no success notification

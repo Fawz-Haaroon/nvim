@@ -64,24 +64,20 @@ return {
             local image = require("image")
             if image.is_enabled() then
                 image.disable()
-                vim.notify("🚫 Image rendering disabled", vim.log.levels.INFO, { title = "🖼️ Image.nvim" })
             else
                 image.enable()
-                vim.notify("✅ Image rendering enabled", vim.log.levels.INFO, { title = "🖼️ Image.nvim" })
             end
         end, "Toggle image rendering")
         
         -- Clear all images in current buffer
         map("n", "<leader>ic", function()
             require("image").clear()
-            vim.notify("🧹 Images cleared from buffer", vim.log.levels.INFO, { title = "🖼️ Image.nvim" })
         end, "Clear images from buffer")
         
         -- Refresh/reload images in current buffer
         map("n", "<leader>ir", function()
             require("image").clear()
             vim.cmd("edit") -- Reload buffer to re-render images
-            vim.notify("🔄 Images refreshed", vim.log.levels.INFO, { title = "🖼️ Image.nvim" })
         end, "Refresh images in buffer")
         
         -- 📁 Open image files directly with image viewer
@@ -107,18 +103,10 @@ return {
                 vim.opt_local.colorcolumn = ""
                 
                 -- Show image info in statusline
-                local filename = vim.fn.expand("%:t")
-                local filesize = vim.fn.getfsize(vim.fn.expand("%"))
-                local size_mb = string.format("%.2f MB", filesize / 1024 / 1024)
-                vim.notify(
-                    string.format("🖼️ %s (%s)", filename, size_mb),
-                    vim.log.levels.INFO,
-                    { title = "Image File Opened" }
-                )
+                -- no notification spam for image info
             end,
         })
         
-        -- 📋 Success notification
-        vim.notify("🖼️ Image viewing enabled with Kitty backend!", vim.log.levels.INFO, { title = "🚀 UI" })
+        -- Silent load: notify only on error
     end,
 }
