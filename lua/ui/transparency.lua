@@ -123,7 +123,7 @@ function M.enable()
 
   state.enabled = true
   vim.g.nvim_transparency_enabled = true
-  vim.notify("🪟 Transparency enabled (crisp)", vim.log.levels.INFO, { title = "UI" })
+  -- no success notification
 end
 
 function M.disable()
@@ -146,7 +146,7 @@ function M.disable()
 
   state.enabled = false
   vim.g.nvim_transparency_enabled = false
-  vim.notify("🪟 Transparency disabled", vim.log.levels.INFO, { title = "UI" })
+  -- no success notification
 end
 
 function M.toggle()
@@ -177,6 +177,12 @@ function M.setup()
   vim.api.nvim_create_user_command("NvimTransparencyToggle", function()
     M.toggle()
   end, { desc = "Toggle Neovim UI transparency" })
+end
+
+-- Don't load this as a lazy.nvim plugin - it's a utility module
+-- It gets loaded manually by other modules that need it
+if vim.g._loading_lazy_plugins then
+  return {}
 end
 
 return M

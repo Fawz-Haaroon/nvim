@@ -30,4 +30,10 @@ function M.setup()
   })
 end
 
+-- Don't load this as a lazy.nvim plugin - it's a utility module
+-- It gets loaded manually by other modules that need it
+if vim.g._loading_lazy_plugins then
+  return {}
+end
+
 return M

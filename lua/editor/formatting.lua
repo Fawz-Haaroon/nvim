@@ -33,8 +33,8 @@ return {
       -- Lua
       lua = { "stylua" },
 
-      -- Python
-      python = { "isort", "black" },
+      -- Python (DISABLED to avoid style conflicts)
+      -- python = { "isort", "black" },
 
       -- Go
       go = { "gofumpt", "goimports" },
@@ -50,8 +50,8 @@ return {
       terraform = { "terraform_fmt" },
 
       -- C/C++ (leave to clangd by default; can use clang-format if desired)
-       c = { "clang_format" },
-       cpp = { "clang_format" },
+      c = { "clang_format" },
+      cpp = { "clang_format" },
     },
 
     -- Format on save conservatively and quickly
@@ -62,9 +62,16 @@ return {
       if ok and stats and stats.size > max then
         return
       end
+
+      -- Skip autoformat for Python (always disabled)
+      if vim.bo[bufnr].filetype == "python" then
+        return
+      end
+
       return { lsp_fallback = true, timeout_ms = 1000 }
     end,
   },
+
   config = function(_, opts)
     require("conform").setup(opts)
     -- Optional command and keymap for manual formatting
@@ -77,4 +84,3 @@ return {
     end, { desc = "Format with Conform" })
   end,
 }
-

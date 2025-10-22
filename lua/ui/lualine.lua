@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
---  🚀 NEON ARCADE LUALINE (filename = YELLOW w/ arrow, filesize moved & recolored)
+--  ✨ TOKYONIGHT LUALINE - Arrow separators, breadcrumbs, progress & location
 -- ═══════════════════════════════════════════════════════════════════════════
 
 return {
@@ -7,62 +7,20 @@ return {
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   event = 'VeryLazy',
   config = function()
-    -- Colors
-    local bg      = '#050510' -- deep base
-    local fg      = '#EAEAEA' -- neutral text
-
-    local cyan    = '#00FFFF'
-    local magenta = '#FF00FF'
-    local green   = '#39FF14'
-    local yellow  = '#F5FF00' -- filename block
-    local orange  = '#FF5F1F' -- filesize block
-    local blue    = '#1F51FF'
-    local purple  = '#9D00FF' -- encoding / utf-8 block
-    local red     = '#FF073A'
-
-    -- Mode theme
-    local neon = {
-      normal = {
-        a = { fg = bg, bg = cyan, gui = 'bold' },
-        b = { fg = bg, bg = blue },
-        c = { fg = fg, bg = bg },
-        x = { fg = bg, bg = purple },
-        y = { fg = bg, bg = green },
-        z = { fg = bg, bg = magenta },
-      },
-      insert = {
-        a = { fg = bg, bg = green, gui = 'bold' },
-        b = { fg = bg, bg = cyan },
-        c = { fg = fg, bg = bg },
-        x = { fg = bg, bg = yellow },
-        y = { fg = bg, bg = orange },
-        z = { fg = bg, bg = red },
-      },
-      visual = {
-        a = { fg = bg, bg = magenta, gui = 'bold' },
-        b = { fg = bg, bg = purple },
-        c = { fg = fg, bg = bg },
-        x = { fg = bg, bg = blue },
-        y = { fg = bg, bg = cyan },
-        z = { fg = bg, bg = orange },
-      },
-      replace = {
-        a = { fg = bg, bg = red, gui = 'bold' },
-        b = { fg = bg, bg = orange },
-        c = { fg = fg, bg = bg },
-        x = { fg = bg, bg = yellow },
-        y = { fg = bg, bg = green },
-        z = { fg = bg, bg = cyan },
-      },
-      inactive = {
-        a = { fg = fg, bg = bg },
-        b = { fg = fg, bg = bg },
-        c = { fg = fg, bg = bg },
-        x = { fg = fg, bg = bg },
-        y = { fg = fg, bg = bg },
-        z = { fg = fg, bg = bg },
-      },
-    }
+    -- Colors from tokyonight (fallbacks provided)
+    local ok, tn = pcall(require, 'tokyonight.colors')
+    local palette = ok and tn.setup() or {}
+    local bg       = palette.bg or '#1a1b26'
+    local fg       = palette.fg or '#c0caf5'
+    local yellow   = palette.yellow or '#e0af68'
+    local orange   = palette.orange or '#ff9e64'
+    local purple   = palette.purple or '#9d7cd8'
+    local blue     = palette.blue or '#7aa2f7'
+    local cyan     = palette.cyan or '#7dcfff'
+    local green    = palette.green or '#9ece6a'
+    local red      = palette.red or '#f7768e'
+    local teal     = palette.teal or '#1abc9c'
+    local lavender = palette.magenta or '#bb9af7'
 
     -- Helper: accurate filesize (KB/MB with two decimals)
     local function pretty_filesize()
@@ -88,12 +46,12 @@ local navic_ok, navic = pcall(require, 'nvim-navic')
 
 require('lualine').setup {
       options = {
-        theme = neon,
+        theme = 'tokyonight',
         section_separators = { left = '', right = '' },
         component_separators = { left = '', right = '' },
         icons_enabled = true,
         globalstatus = true,
-        disabled_filetypes = { statusline = { 'alpha' } },
+        disabled_filetypes = { statusline = { 'snacks_dashboard', 'dashboard' } },
       },
 
       sections = {
@@ -114,18 +72,16 @@ require('lualine').setup {
           },
         },
 
-        -- CENTER: Only the filepath (colored yellow + right arrow)
+        -- CENTER: Filename block (yellow) + breadcrumbs
         lualine_c = {
           {
             'filename',
-            path = 1, -- show path relative to working dir
+            path = 1,
             symbols = { modified = ' ●', readonly = ' ', unnamed = '[No Name]' },
-            color = { fg = bg, bg = yellow }, -- yellow background, text = bg color for contrast
-            -- ensure filename ends with a right-pointing arrow of the same yellow color
+            color = { fg = bg, bg = yellow },
             separator = { right = '' },
             padding = { left = 1, right = 1 },
           },
-          -- Breadcrumbs via navic
           {
             function()
               if navic_ok and navic.is_available() then
@@ -140,17 +96,14 @@ require('lualine').setup {
           },
         },
 
-        -- RIGHT: encoding (purple) then filesize (orange), then time/logo
+        -- RIGHT: encoding (purple) + filesize (orange)
         lualine_x = {
-          -- encoding block (purple) with left arrow to merge from filename and right arrow to next
           {
             'encoding',
             color = { fg = bg, bg = purple },
             separator = { left = '' },
             padding = { left = 1, right = 1 },
           },
-
-          -- filesize now accurate and distinct color (orange). left arrow merges from encoding.
           {
             pretty_filesize,
             color = { fg = bg, bg = orange },
@@ -159,14 +112,15 @@ require('lualine').setup {
           },
         },
 
-        -- time
+        -- Time + Linux logo
         lualine_y = {
           { function() return os.date("%a %b %d %I:%M %p") end, icon = '' },
         },
 
-        -- linux logo
+        -- Progress (percent) + row:col
         lualine_z = {
-          { function() return '' end, padding = { left = 1, right = 1 }, color = { fg = '#FFFFFF' } },
+          { 'progress', color = { gui = 'bold' } },
+          { 'location' },
         },
       },
 

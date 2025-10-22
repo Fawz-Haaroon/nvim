@@ -243,6 +243,6 @@ return {
             },
         })
         
-        vim.notify("🌳 Ultimate Treesitter configuration loaded - All languages supported!", vim.log.levels.INFO, { title = "🎨 Syntax" })
+        -- Silent load: notify only on error
     end,
 }

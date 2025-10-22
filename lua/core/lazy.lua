@@ -25,9 +25,11 @@ vim.loader.enable() -- Enable native module loader (Neovim 0.9+)
     -- 🎯 Plugin Categories (Professional Organization)
 local plugin_categories = {
     -- 🎨 UI & Theming (Load First - Highest Priority)
+    "ui.tokyo-enhanced", -- 🌙 Enhanced Tokyo Night Storm (Default)
     "ui.themes",
+    "ui.themes-enhanced", -- 🌈 Additional vibrant & glowing themes
     "ui.devicons",
-    "ui.alpha",
+    "ui.snacks-dashboard",
     "ui.lualine",
     "ui.comfy-tabline",
     "ui.cmdline-enhanced",
@@ -81,15 +83,17 @@ local plugin_categories = {
     -- 🐞 Debugging (Medium Priority)
     "debugging.dap",
     "debugging.dap-ui",
+    "debugging.neotest",
     
     -- 🎯 Utilities (Lower Priority)
-    "utils.which-key",
-    "utils.session",
-    "utils.project",
-    "utils.copilot",
-    "utils.toggleterm",
-    "utils.yanky",
-    "utils.overseer",
+    -- NOTE: Plugin configs moved to plugin-specific locations (which-key in plugin folder, etc.)
+    
+    -- 🍿 SNACKS DASHBOARD ONLY (All other snacks modules DISABLED to prevent conflicts)
+    -- "utils.snacks-utilities",      -- DISABLED: Conflicts with dashboard
+    -- "utils.snacks-terminal",       -- DISABLED: Conflicts with dashboard
+    -- "utils.snacks-advanced",       -- DISABLED: Conflicts with dashboard
+    -- "ui.snacks-enhancements",      -- DISABLED: Conflicts with dashboard
+    -- "navigation.snacks-picker",    -- DISABLED: Conflicts with dashboard
 }
 
 -- 🚀 Lazy.nvim Configuration
@@ -175,7 +179,7 @@ require("lazy").setup({
     -- 📦 Installation Settings
     install = {
         missing = true,
-        colorscheme = { "catppuccin-mocha", "habamax" },
+        colorscheme = { "tokyonight-storm", "catppuccin-mocha", "habamax" },
     },
     
     -- 🔍 Checker Settings (Non-intrusive)
@@ -206,21 +210,7 @@ require("lazy").setup({
     },
 })
 
--- 🎯 Post-setup optimizations
-vim.api.nvim_create_autocmd("User", {
-    pattern = "LazyDone",
-    callback = function()
-        -- ✨ Success notification
-        vim.notify(
-            "🎉 All plugins loaded successfully! Ultimate IDE ready!", 
-            vim.log.levels.INFO,
-            { 
-                title = "🚀 Lazy.nvim",
-                timeout = 2000,
-            }
-        )
-    end,
-})
+-- Silent: no success notifications on LazyDone
 
 -- 🔥 Keybindings
 vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "🚀 Open Lazy.nvim" })
@@ -229,4 +219,4 @@ vim.keymap.set("n", "<leader>Ls", "<cmd>Lazy sync<cr>", { desc = "🔄 Sync plug
 vim.keymap.set("n", "<leader>Lc", "<cmd>Lazy clean<cr>", { desc = "🧹 Clean plugins" })
 vim.keymap.set("n", "<leader>Lp", "<cmd>Lazy profile<cr>", { desc = "📊 Profile plugins" })
 
-vim.notify("📦 Lazy.nvim configured with ultimate performance!", vim.log.levels.INFO, { title = "⚡ Core" })
+-- Lazy.nvim configured silently

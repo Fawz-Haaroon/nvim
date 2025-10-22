@@ -29,13 +29,16 @@ vim.defer_fn(function()
     else
         vim.notify("⚠️  Functional keymaps not loaded", vim.log.levels.WARN, { title = "🔧 Keymaps" })
     end
+
+    -- Ensure utility modules (commands) are available for keymaps
+    pcall(require, "utils.workspaces")
+    pcall(require, "utils.python-venv")
 end, 100)
 
--- ✨ Success message
-vim.notify("🎯 Core modules loaded successfully!", vim.log.levels.INFO, { title = "⚡ Core" })
+-- Core modules loaded silently
 
--- 📖 Quick docs: open the README in a new tab
+-- 📖 Quick docs: open the main Guide in a new tab
 vim.api.nvim_create_user_command("Docs", function()
-  local readme = vim.fn.stdpath('config') .. "/README.md"
-  vim.cmd("tabnew " .. vim.fn.fnameescape(readme))
-end, { desc = "Open Neovim config guide (README.md)" })
+  local guide = vim.fn.stdpath('config') .. "/docs/Guide.md"
+  vim.cmd("tabnew " .. vim.fn.fnameescape(guide))
+end, { desc = "Open Neovim config guide (docs/Guide.md)" })

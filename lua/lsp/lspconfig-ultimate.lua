@@ -28,24 +28,21 @@ dependencies = {
 
         return {
             -- 🎨 Enhanced diagnostics
-            diagnostics = {
-                underline = true,
-                update_in_insert = false,
-                virtual_text = {
-                    spacing = 4,
-                    source = "if_many",
-                    prefix = "●",
-                },
-                severity_sort = true,
-                signs = {
-                    text = {
-                        [vim.diagnostic.severity.ERROR] = "󰅚",
-                        [vim.diagnostic.severity.WARN] = "󰀪",
-                        [vim.diagnostic.severity.HINT] = "󰌶",
-                        [vim.diagnostic.severity.INFO] = "󰋽",
-                    },
-                },
-            },
+    -- 🎨 Optimized diagnostics with better debouncing and less visual noise
+    diagnostics = {
+        underline = false,
+        update_in_insert = false,
+        virtual_text = false, -- Hide inline diagnostic text
+        severity_sort = true,
+        float = {
+            border = "rounded",
+            source = "if_many",
+            header = "",
+            prefix = "",
+            focusable = false,
+        },
+        signs = false, -- Hide sign column diagnostics
+    },
             
             -- 🔧 Ultimate server configurations
             servers = {
@@ -60,6 +57,22 @@ dependencies = {
                                 includeInlayVariableTypeHints = false,
                                 includeInlayPropertyDeclarationTypeHints = true,
                                 includeInlayFunctionLikeReturnTypeHints = true,
+                            },
+                            suggest = { completeFunctionCalls = true },
+                            preferences = {
+                                includeCompletionsWithClassMemberSnippets = true,
+                                includeCompletionsWithObjectLiteralMethodSnippets = true,
+                                quoteStyle = "auto",
+                                importModuleSpecifierPreference = "auto",
+                            },
+                        },
+                        javascript = {
+                            suggest = { completeFunctionCalls = true },
+                            preferences = {
+                                includeCompletionsWithClassMemberSnippets = true,
+                                includeCompletionsWithObjectLiteralMethodSnippets = true,
+                                quoteStyle = "auto",
+                                importModuleSpecifierPreference = "auto",
                             },
                         },
                     },
@@ -80,14 +93,27 @@ dependencies = {
                         python = {
                             analysis = {
                                 autoSearchPaths = true,
-                                diagnosticMode = "workspace",
+                                diagnosticMode = "openFilesOnly", -- Less aggressive
                                 useLibraryCodeForTypes = true,
-                                typeCheckingMode = "basic",
+                                typeCheckingMode = "off", -- Disable type checking noise
+                                autoImportCompletions = true,
+                                diagnosticSeverityOverrides = {
+                                    reportUnusedImport = "none",
+                                    reportUnusedVariable = "none",
+                                    reportUnusedFunction = "none",
+                                    reportUnusedClass = "none",
+                                    reportUnknownArgumentType = "none",
+                                    reportUnknownVariableType = "none",
+                                    reportUnknownMemberType = "none",
+                                    reportMissingImports = "none",
+                                    reportMissingModuleSource = "none",
+                                    reportGeneralTypeIssues = "none",
+                                },
                             },
                         },
                     },
                 },
-                ruff = {}, -- Python linter
+                -- ruff = {}, -- DISABLED: Too many style warnings
                 
                 -- ⚡ Rust
                 rust_analyzer = {
@@ -216,9 +242,9 @@ dependencies = {
                 
                 -- ⚛️ Framework-specific
                 svelte = {}, -- Svelte
-                volar = { -- Vue.js
-                    filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "json" },
-                },
+                -- volar = { -- Vue.js (disabled: not installed)
+                --     filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "json" },
+                -- },
                 
                 -- 📊 Data & Config
                 jsonls = { -- JSON
@@ -267,9 +293,12 @@ dependencies = {
         
         local lspconfig = require("lspconfig")
         
+    -- Load LSP utilities for toggle functionality
+        require("lsp.utils").setup()
+
         -- 🎨 Enhanced LSP UI
         vim.diagnostic.config(opts.diagnostics)
-        
+
         -- 🎯 Enhanced capabilities
         local capabilities = vim.tbl_deep_extend(
             "force",
@@ -407,6 +436,6 @@ dependencies = {
             lspconfig[server].setup(config)
         end
         
-        vim.notify("🚀 Ultimate LSP configuration loaded - All languages supported!", vim.log.levels.INFO, { title = "🔧 LSP" })
+        -- LSP configured silently
     end,
 }

@@ -12,15 +12,15 @@ g.maplocalleader = "\\"
 -- 🎨 Ultimate Visual Experience
 opt.termguicolors = true           -- 24-bit RGB colors
 opt.background = "dark"            -- Dark theme
-opt.signcolumn = "yes:2"           -- Always show signcolumn (2 chars wide)
+opt.signcolumn = "yes:2"           -- Always show signcolumn (2 chars wide) - blue line BEFORE numbers
 opt.number = true                  -- Line numbers
 opt.relativenumber = true          -- Relative line numbers
 opt.numberwidth = 4                -- Width of number column
 opt.cursorline = true              -- Highlight cursor line
 opt.cursorlineopt = "both"         -- Highlight both line and number
-opt.colorcolumn = "100"            -- Highlight column at 100 chars
+opt.colorcolumn = ""               -- No colorcolumn by default
 opt.conceallevel = 0               -- Don't conceal characters
-opt.cmdheight = 0                  -- Hide command line when not used
+opt.cmdheight = 1                  -- Keep cmdline visible (prevents E36: Not enough room)
 opt.pumheight = 15                 -- Max items in popup menu
 opt.pumwidth = 30                  -- Min width of popup menu
 opt.pumblend = 10                  -- Popup transparency
@@ -85,7 +85,7 @@ opt.winheight = 30                 -- Preferred window height
 opt.helpheight = 20                -- Help window height
 
 -- 📜 Scrolling & Movement
-opt.scrolloff = 8                  -- Lines above/below cursor
+opt.scrolloff = 4                  -- Lines above/below cursor (reduced for top spacing)
 opt.sidescrolloff = 8              -- Columns left/right of cursor
 opt.smoothscroll = true            -- Smooth scrolling (Neovim 0.10+)
 opt.wrap = false                   -- Don't wrap lines
@@ -102,6 +102,7 @@ opt.formatoptions:remove("cro")    -- Don't auto-comment new lines
 opt.iskeyword:append("-")          -- Treat dash as part of word
 
 -- 🔤 Characters & Display
+opt.linespace = 1                  -- Tiny vertical padding so top isn’t visually merged
 opt.list = true                    -- Show invisible characters
 opt.listchars = {                  -- Define invisible characters
     tab = "→ ",

@@ -37,9 +37,9 @@ dependencies = {
                 "tailwindcss",
                 "emmet_ls",
                 
-                -- 🐍 Python
+                -- 🐍 Python (minimal setup)
                 "pyright",
-                "ruff",
+                -- "ruff", -- DISABLED: Style warnings
                 
                 -- ⚡ Rust
                 "rust_analyzer",
@@ -87,20 +87,20 @@ dependencies = {
         local mason_tool_installer = require("mason-tool-installer")
         mason_tool_installer.setup({
             ensure_installed = {
-                -- 🎨 Formatters
+                -- 🎨 Formatters (minimal Python)
                 "prettier",
-                "black",
-                "isort",
+                -- "black", -- DISABLED: Style conflicts
+                -- "isort", -- DISABLED: Style conflicts 
                 "rustfmt",
                 "gofumpt",
                 "goimports",
                 "stylua",
                 "shfmt",
                 
-                -- 🔍 Linters
+                -- 🔍 Linters (minimal Python linting)
                 "eslint_d",
-                "flake8",
-                "pylint",
+                -- "flake8", -- DISABLED: Style warnings  
+                -- "pylint", -- DISABLED: Style warnings
                 "shellcheck",
                 "hadolint",
                 "markdownlint",
@@ -116,6 +116,6 @@ dependencies = {
             run_on_start = true,
         })
         
-        vim.notify("🔧 Mason configuration loaded - LSP servers will be auto-installed!", vim.log.levels.INFO, { title = "📦 Mason" })
+        -- Silent load: notify only on error
     end,
 }

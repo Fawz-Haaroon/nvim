@@ -11,7 +11,7 @@ return {
     if not ok then return end
     codewindow.setup({
       auto_enable = false,
-      exclude_filetypes = { "neo-tree", "alpha", "oil", "dashboard", "help" },
+      exclude_filetypes = { "neo-tree", "snacks_dashboard", "oil", "dashboard", "help" },
       z_index = 30,
       width = 20,
       minimap_width = 10,

@@ -1,69 +1,143 @@
-<p align="center">
-  <br/>
-  <img src="https://img.shields.io/badge/Neovim-0.10%2B-57A143?logo=neovim&logoColor=white" alt="Neovim"/>
-  <img src="https://github.com/Fawz-Haaroon/nvim/actions/workflows/ci.yml/badge.svg" alt="CI"/>
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT"/>
-</p>
+# Lexitron.nvim — Professional Neovim Distribution
 
-<h1 align="center">Lexitron.nvim</h1>
-<p align="center">A luxurious, modern, batteries‑included Neovim IDE — fast, elegant, and ready in one command.</p>
+> **Clean, fast, and quiet.** Batteries included. Production-ready IDE with 110+ plugins, LSP for 15+ languages, and comprehensive documentation.
 
-<p align="center">
-  <em>Catppuccin Mocha aesthetics • Rich UI • Instant LSP • Debugging • AI‑assisted completion • Thoughtful defaults</em>
-</p>
+## 📚 Documentation
 
----
+- **[Guide](docs/guide.md)** — 250+ keybindings organized by category (Navigation, LSP, Git, Telescope, etc.)
+- **[Reference](docs/reference.md)** — Architecture, LSP servers, formatters, linters, plugins, troubleshooting
+- **[Keymaps](docs/guide.md#quick-reference)** — Quick reference table
 
-## ✨ Why you’ll love it
-- Beautiful out of the box (Catppuccin Mocha + curated highlights)
-- IDE‑level experience: LSP, Treesitter, DAP, Telescope, Git UI, formatting, diagnostics
-- Image‑aware: inline images in Kitty; previews (images/PDF/video) everywhere via chafa + poppler + ffmpeg
-- One‑shot installer: sets up Neovim, fonts, toolchains, runtimes (Node/Python/Go/Java/Rust/…)
-- Works across Linux distros (Arch, Debian/Ubuntu, Fedora/RHEL, openSUSE, Homebrew) — same look, same feel
+## 🎯 Quick Start
 
-## 🚀 Quick start (30 seconds)
+### Installation
+
 ```bash
-# clone into your Neovim config and run the installer
-git clone https://github.com/Fawz-Haaroon/nvim ~/.config/nvim
-cd ~/.config/nvim && chmod +x install.sh && bash ./install.sh
+# Clone or update
+cd ~/.config
+git clone https://github.com/yourusername/nvim.git nvim
+cd nvim
 
-# launch
-nvim
+# Run health check
+make health
+
+# Format code (optional)
+make format
 ```
 
-More details: see docs/INSTALL.md
+### First Time
 
-## 🌟 Highlights
-- Default theme: Tokyo Night (storm)
-- Navigation: Telescope, Neo‑tree, Oil, Harpoon
-- Editing power: Treesitter, surround, autopairs, comment, multicursor, Spectre, todo‑comments
-- Completion: Blink (with LuaSnip + friendly‑snippets)
-- LSP: mason + lspconfig (TypeScript, Python, Go, Rust, Java, C/C++, Lua, PHP, Ruby, YAML/JSON, Docker, Terraform…)
-- Formatting/Linting: Conform + Mason tools (Prettier, Black/Isort, Stylua, Go tools, Rustfmt, Shfmt, etc.)
-- Debugging: nvim‑dap + UI
-- UI polish: Noice/Notify/Dressing, lualine, devicons, indent guides, custom tabline
+1. Open Neovim: `nvim`
+2. Plugins auto-install via lazy.nvim
+3. Install LSP servers: `:Mason`
+4. Discover keybindings: `<leader>fk` (Telescope)
+5. Read the guide: `docs/guide.md`
 
-For keybindings, workflows, troubleshooting, and tips, see :help lexitron-megasheet (run :helptags ~/.config/nvim/doc once).
+## ⚡ Features
 
-## 🧰 Requirements
-- Linux + Kitty (recommended for inline images)
-- Neovim 0.10+ (installer will auto‑install an AppImage if the system version is old)
-- A Nerd Font (JetBrainsMono Nerd auto‑installed if missing)
+- **UI** — Dashboard (skull theme), Lualine, custom tabline, 15+ colorschemes, transparency
+- **Navigation** — Telescope, Neo-tree, Oil, Harpoon, Flash, Aerial
+- **Editing** — Treesitter (70+ languages), Surround, Comment, Multicursor, Refactoring
+- **LSP** — 15+ servers (Lua, TypeScript, Python, Rust, Go, C/C++, etc.), auto-attach, minimal diagnostics
+- **Git** — Gitsigns, Neogit, Diffview, GitBrowse
+- **Completion** — Blink.cmp + LSP + snippets
+- **Debug** — DAP with UI, Neotest
+- **Performance** — ~65ms startup, lazy-loaded plugins, optimized for large files
 
-## 🧪 Philosophy
-- Stability first, performance by default, clean visuals, and discoverability
-- Professional project standards: license, code of conduct, contributing guide, CI
+## 🛠️ Maintenance
 
-## 🤝 Contributing
-We welcome thoughtful PRs and issues. Please read CONTRIBUTING.md and follow Conventional Commits. CI checks (Stylua + ShellCheck) must pass.
+```bash
+# Health check
+make health
 
-## 🛡️ Code of Conduct & Security
-- CODE_OF_CONDUCT.md — be kind and inclusive
-- SECURITY.md — how to report vulnerabilities
+# Format Lua code
+make format
 
-## 📜 License
-MIT © Fawz Haaroon
+# Lint code
+make lint
 
----
+# Profile startup
+make profile
 
-P.S. If this saved you time, consider starring the repo. It helps a lot! ⭐
+# Install tools (stylua, luacheck)
+make install
+
+# Clean temp files
+make clean
+```
+
+## 📋 Requirements
+
+- **Neovim** 0.10+ (use `:version` to check)
+- **Git** (to clone config)
+- **External tools** (optional but recommended):
+  - `fd`, `rg` — faster file/text search
+  - `bat` — syntax highlighting in previews
+  - `lazygit` — Git UI
+  - `node`, `python3` — LSP servers
+  - `stylua`, `luacheck` — Lua formatting/linting
+
+## ❓ Troubleshooting
+
+### Dashboard not showing?
+- `nvim` (no args) should show dashboard
+- Check: `:set filetype?` should be `snacks_dashboard`
+
+### LSP not attaching?
+1. `:LspInfo` — see active servers
+2. `:MasonInstall <server-name>` — install missing server
+3. `:checkhealth lsp` — diagnose issues
+
+### Telescope slow?
+- Install `fd` or `rg`: `pacman -S fd ripgrep` (Arch)
+- Try: `:Telescope find_files` vs `:Telescope find_files hidden=true`
+
+### See full troubleshooting
+- `docs/reference.md#troubleshooting`
+
+## 📊 Stats
+
+- **Startup:** ~65ms (lazy-loaded)
+- **Plugins:** 110+
+- **Keybindings:** 250+
+- **Lines of code:** 8K+
+- **LSP Servers:** 15+ configured
+- **Formatters:** 9 languages
+- **Supported languages:** 70+
+
+## 🔧 Configuration
+
+All config is modular:
+
+```
+lua/
+├── core/          — Options, keymaps, autocmds, plugins
+├── lsp/           — LSP setup, Mason
+├── navigation/    — Telescope, Neo-tree, Oil, etc.
+├── editor/        — Treesitter, surround, formatting
+├── ui/            — Dashboard, statusline, themes
+└── utils/         — Utilities
+```
+
+Edit any file in `lua/` and Neovim reloads automatically.
+
+## 📝 License
+
+MIT — See LICENSE
+
+## 🎉 You're All Set!
+
+Run `make health` to validate your setup, then start editing.
+
+```bash
+# Validate
+make health
+
+# Update plugins
+:Lazy update
+
+# Check health
+:checkhealth
+```
+
+**Welcome to your legendary development environment!** 🚀
