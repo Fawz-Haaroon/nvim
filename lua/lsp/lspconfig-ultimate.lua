@@ -142,20 +142,20 @@ dependencies = {
                     },
                 },
                 
-                -- 🔵 Go
-                gopls = {
-                    settings = {
-                        gopls = {
-                            experimentalPostfixCompletions = true,
-                            analyses = {
-                                unusedparams = true,
-                                shadow = true,
-                            },
-                            staticcheck = true,
-                            gofumpt = true,
-                        },
-                    },
-                },
+                -- 🔵 Go (Optional - uncomment if you work with Go)
+                -- gopls = {
+                --     settings = {
+                --         gopls = {
+                --             experimentalPostfixCompletions = true,
+                --             analyses = {
+                --                 unusedparams = true,
+                --                 shadow = true,
+                --             },
+                --             staticcheck = true,
+                --             gofumpt = true,
+                --         },
+                --     },
+                -- },
                 
                 -- ☕ Java
                 jdtls = {

@@ -321,6 +321,144 @@ return {
     end,
   },
 
+  -- 🌃 14. NIGHTFOX - Highly customizable with multiple variants
+  {
+    "EdenEast/nightfox.nvim",
+    priority = 260,
+    opts = {
+      options = {
+        transparent = true,
+        terminal_colors = true,
+        dim_inactive = true,
+        module_default = true,
+        styles = {
+          comments = "italic",
+          keywords = "bold",
+          types = "italic,bold",
+        },
+      },
+    },
+  },
+
+  -- ❄️ 15. NORD - Arctic, north-bluish theme
+  {
+    "shaunsingh/nord.nvim",
+    priority = 250,
+    config = function()
+      vim.g.nord_contrast = true
+      vim.g.nord_borders = false
+      vim.g.nord_disable_background = true
+      vim.g.nord_italic = true
+      vim.g.nord_bold = true
+    end,
+  },
+
+  -- 🌲 16. EVERFOREST - Comfortable green forest theme
+  {
+    "sainnhe/everforest",
+    priority = 240,
+    config = function()
+      vim.g.everforest_background = "hard" -- hard, medium, soft
+      vim.g.everforest_better_performance = 1
+      vim.g.everforest_enable_italic = 1
+      vim.g.everforest_transparent_background = 2
+    end,
+  },
+
+  -- 🌅 17. AYU - Light, Mirage, and Dark variants
+  {
+    "Shatur/neovim-ayu",
+    priority = 230,
+    config = function()
+      require('ayu').setup({
+        mirage = true,
+        terminal = true,
+        overrides = {},
+      })
+    end,
+  },
+
+  -- 🎭 18. ONEDARKPRO - OneDark with extras
+  {
+    "olimorris/onedarkpro.nvim",
+    priority = 220,
+    opts = {
+      colors = {},
+      highlights = {},
+      styles = {
+        types = "NONE",
+        methods = "NONE",
+        numbers = "NONE",
+        strings = "NONE",
+        comments = "italic",
+        keywords = "bold,italic",
+        constants = "NONE",
+        functions = "italic",
+        operators = "NONE",
+        variables = "NONE",
+        parameters = "NONE",
+        conditionals = "italic",
+        virtual_text = "NONE",
+      },
+      options = {
+        transparency = true,
+      },
+    },
+  },
+
+  -- 🌐 19. CYBERDREAM - Modern cyberpunk theme
+  {
+    "scottmckendry/cyberdream.nvim",
+    priority = 210,
+    opts = {
+      transparent = true,
+      italic_comments = true,
+      hide_fillchars = false,
+      borderless_telescope = true,
+      terminal_colors = true,
+    },
+  },
+
+  -- 🌺 20. SONOKAI - Monokai evolution
+  {
+    "sainnhe/sonokai",
+    priority = 200,
+    config = function()
+      vim.g.sonokai_style = "atlantis" -- default, atlantis, andromeda, shusia, maia, espresso
+      vim.g.sonokai_enable_italic = 1
+      vim.g.sonokai_transparent_background = 2
+      vim.g.sonokai_better_performance = 1
+    end,
+  },
+
+  -- 🎨 21. GRUVBOX MATERIAL - Enhanced Gruvbox
+  {
+    "sainnhe/gruvbox-material",
+    priority = 190,
+    config = function()
+      vim.g.gruvbox_material_background = "hard" -- hard, medium, soft
+      vim.g.gruvbox_material_foreground = "material" -- material, mix, original
+      vim.g.gruvbox_material_enable_italic = 1
+      vim.g.gruvbox_material_transparent_background = 2
+      vim.g.gruvbox_material_better_performance = 1
+    end,
+  },
+
+  -- 🌈 22. ENFOCADO - Focus on what matters
+  {
+    "wuelnerdotexe/vim-enfocado",
+    priority = 180,
+    config = function()
+      vim.g.enfocado_style = "neon" -- nature or neon
+    end,
+  },
+
+  -- 🌟 23. MELANGE - Warm, cozy colorscheme
+  {
+    "savq/melange-nvim",
+    priority = 170,
+  },
+
   -- 🎯 THEME SWITCHER CONFIGURATION
   {
     "zaldih/themery.nvim",
@@ -394,6 +532,46 @@ return {
             before = [[
               require("monokai-pro").setup({})
             ]],
+          },
+          {
+            name = "🌃 Nightfox - Highly Customizable",
+            colorscheme = "nightfox",
+          },
+          {
+            name = "❄️ Nord - Arctic Blue Minimalism",
+            colorscheme = "nord",
+          },
+          {
+            name = "🌲 Everforest - Comfortable Green Forest",
+            colorscheme = "everforest",
+          },
+          {
+            name = "🌅 Ayu Mirage - Sublime Elegance",
+            colorscheme = "ayu-mirage",
+          },
+          {
+            name = "🎭 OneDark Pro - Enhanced OneDark",
+            colorscheme = "onedark",
+          },
+          {
+            name = "🌐 Cyberdream - Modern Cyberpunk",
+            colorscheme = "cyberdream",
+          },
+          {
+            name = "🌺 Sonokai Atlantis - Monokai Evolution",
+            colorscheme = "sonokai",
+          },
+          {
+            name = "🎨 Gruvbox Material - Enhanced Retro",
+            colorscheme = "gruvbox-material",
+          },
+          {
+            name = "🌈 Enfocado Neon - Focus Mode",
+            colorscheme = "enfocado",
+          },
+          {
+            name = "🌟 Melange - Warm & Cozy",
+            colorscheme = "melange",
           },
         },
         livePreview = true,

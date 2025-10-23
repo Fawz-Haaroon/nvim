@@ -28,11 +28,11 @@ local plugin_categories = {
     "ui.tokyo-enhanced", -- 🌙 Enhanced Tokyo Night Storm (Default)
     "ui.themes",
     "ui.themes-enhanced", -- 🌈 Additional vibrant & glowing themes
+    "ui.which-key",
     "ui.devicons",
     "ui.snacks-dashboard",
     "ui.lualine",
     "ui.comfy-tabline",
-    "ui.cmdline-enhanced",
     "ui.indent-blankline",
     "ui.noice",
     "ui.notify",
@@ -47,7 +47,8 @@ local plugin_categories = {
     
     -- ⚡ Core Functionality (High Priority)
     "completion.blink-enhanced",
-    "editor.treesitter-ultimate", 
+    "completion.copilot",
+    "editor.treesitter-ultimate",
     "editor.autopairs",
     "editor.surround",
     "editor.comment",
@@ -69,6 +70,7 @@ local plugin_categories = {
     "ui.breadcrumbs",
     
     -- 🌳 Git Integration (Medium Priority)
+    "git.lazygit",
     "git.gitsigns", 
     "git.neogit",
     "git.diffview",
