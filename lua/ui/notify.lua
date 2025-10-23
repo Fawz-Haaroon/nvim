@@ -28,7 +28,7 @@ return {
         },
         level = vim.log.levels.INFO,  -- Show more messages since snacks will handle filtering
         minimum_width = 50,
-        render = "wrapped-compact",
+        render = "default",  -- default shows borders, compact/minimal don't
         stages = "fade_in_slide_out",
         time_formats = {
             notification = "%T",

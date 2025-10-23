@@ -82,27 +82,54 @@ function M.setup()
     map("n", "<leader>cd", "<cmd>Telescope diagnostics<cr>", { desc = "Diagnostics" })
     map("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename" })
     map("n", "<leader>cf", vim.lsp.buf.format, { desc = "Format" })
-    map("n", "<leader>cs", "<cmd>Telescope lsp_document_symbols<cr>", { desc = "Document Symbols" })
-    map("n", "<leader>cS", "<cmd>Telescope lsp_workspace_symbols<cr>", { desc = "Workspace Symbols" })
+    map("n", "<leader>cS", "<cmd>Telescope lsp_document_symbols<cr>", { desc = "Document Symbols" })
+    map("n", "<leader>cW", "<cmd>Telescope lsp_workspace_symbols<cr>", { desc = "Workspace Symbols" })
     
     -- Go to definitions
     map("n", "gd", vim.lsp.buf.definition, { desc = "Go to Definition" })
     map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to Declaration" })
     map("n", "gi", vim.lsp.buf.implementation, { desc = "Go to Implementation" })
-    map("n", "gt", vim.lsp.buf.type_definition, { desc = "Go to Type Definition" })
+    map("n", "gy", vim.lsp.buf.type_definition, { desc = "Go to Type Definition" })
     map("n", "gr", vim.lsp.buf.references, { desc = "Go to References" })
     map("n", "K", vim.lsp.buf.hover, { desc = "Hover Documentation" })
     
     -- 🌿 GIT OPERATIONS
-    map("n", "<leader>gg", "<cmd>Neogit<cr>", { desc = "Neogit" })
-    map("n", "<leader>gs", "<cmd>Neogit kind=split<cr>", { desc = "Git Status" })
-    map("n", "<leader>gc", "<cmd>Neogit commit<cr>", { desc = "Git Commit" })
-    map("n", "<leader>gp", "<cmd>Neogit push<cr>", { desc = "Git Push" })
-    map("n", "<leader>gP", "<cmd>Neogit pull<cr>", { desc = "Git Pull" })
-    map("n", "<leader>gb", "<cmd>Telescope git_branches<cr>", { desc = "Git Branches" })
-    map("n", "<leader>gf", "<cmd>Telescope git_files<cr>", { desc = "Git Files" })
-    map("n", "<leader>gh", "<cmd>DiffviewFileHistory<cr>", { desc = "Git History" })
-    map("n", "<leader>gd", "<cmd>DiffviewOpen<cr>", { desc = "Git Diff" })
+    -- Helper function to check if in git repo
+    local function is_git_repo()
+        vim.fn.system("git rev-parse --is-inside-work-tree")
+        return vim.v.shell_error == 0
+    end
+    
+    local function safe_git_cmd(cmd, fallback_msg)
+        return function()
+            if is_git_repo() then
+                vim.cmd(cmd)
+            else
+                vim.notify(fallback_msg or "Not in a git repository", vim.log.levels.WARN)
+            end
+        end
+    end
+    
+    -- LazyGit (primary git UI)
+    map("n", "<leader>lg", "<cmd>LazyGit<cr>", { desc = "LazyGit" })
+    map("n", "<leader>gg", "<cmd>LazyGit<cr>", { desc = "LazyGit" })
+    
+    -- Neogit (alternative)
+    map("n", "<leader>gn", safe_git_cmd("Neogit"), { desc = "Neogit" })
+    map("n", "<leader>gs", safe_git_cmd("Neogit kind=split"), { desc = "Git Status" })
+    map("n", "<leader>gc", safe_git_cmd("Neogit commit"), { desc = "Git Commit" })
+    map("n", "<leader>gp", safe_git_cmd("Neogit push"), { desc = "Git Push" })
+    map("n", "<leader>gP", safe_git_cmd("Neogit pull"), { desc = "Git Pull" })
+    
+    -- Telescope git commands (only in git repos)
+    map("n", "<leader>gb", safe_git_cmd("Telescope git_branches"), { desc = "Git Branches" })
+    map("n", "<leader>gf", safe_git_cmd("Telescope git_files"), { desc = "Git Files" })
+    map("n", "<leader>gC", safe_git_cmd("Telescope git_commits"), { desc = "Git Commits" })
+    map("n", "<leader>gB", safe_git_cmd("Telescope git_bcommits"), { desc = "Buffer Commits" })
+    
+    -- Diffview
+    map("n", "<leader>gh", safe_git_cmd("DiffviewFileHistory"), { desc = "Git History" })
+    map("n", "<leader>gd", safe_git_cmd("DiffviewOpen"), { desc = "Git Diff" })
     map("n", "<leader>gx", "<cmd>DiffviewClose<cr>", { desc = "Close Git Diff" })
     
     -- GitSigns
@@ -114,12 +141,6 @@ function M.setup()
     map("n", "<leader>ghp", "<cmd>Gitsigns preview_hunk<cr>", { desc = "Preview Hunk" })
     map("n", "<leader>ghb", "<cmd>Gitsigns blame_line<cr>", { desc = "Blame Line" })
     
-    -- 🏃‍♂️ TASK RUNNER
-    map("n", "<leader>rr", "<cmd>OverseerRun<cr>", { desc = "Run Task" })
-    map("n", "<leader>rt", "<cmd>OverseerToggle<cr>", { desc = "Toggle Tasks" })
-    map("n", "<leader>ro", "<cmd>OverseerOpen<cr>", { desc = "Open Tasks" })
-    map("n", "<leader>rc", "<cmd>OverseerClose<cr>", { desc = "Close Tasks" })
-    map("n", "<leader>rb", "<cmd>OverseerBuild<cr>", { desc = "Build Project" })
     
     -- 🐛 DEBUGGING
     local dap_ok, dap = pcall(require, "dap")
@@ -140,15 +161,13 @@ function M.setup()
         map("n", "<leader>de", dapui.eval, { desc = "Eval" })
     end
     
-    -- 🔍 DIAGNOSTICS & TROUBLE
+    -- 👁 DIAGNOSTICS & TROUBLE
     map("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", { desc = "Diagnostics (Trouble)" })
     map("n", "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", { desc = "Buffer Diagnostics (Trouble)" })
     map("n", "<leader>xl", "<cmd>Trouble loclist toggle<cr>", { desc = "Location List (Trouble)" })
     map("n", "<leader>xq", "<cmd>Trouble qflist toggle<cr>", { desc = "Quickfix List (Trouble)" })
     
-    -- Navigation
-    map("n", "]d", vim.diagnostic.goto_next, { desc = "Next Diagnostic" })
-    map("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev Diagnostic" })
+    -- Navigation (note: ]d and [d already defined in core keymaps)
     map("n", "<leader>xe", vim.diagnostic.open_float, { desc = "Show Diagnostics" })
     
     -- 🎨 UI TOGGLES
@@ -163,16 +182,11 @@ function M.setup()
     -- 📦 BUFFER OPERATIONS
     map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Delete Buffer" })
     map("n", "<leader>bD", "<cmd>%bdelete|edit#|normal `\"<cr>", { desc = "Delete All But Current" })
-    map("n", "<leader>bl", "<cmd>BufferLineCloseLeft<cr>", { desc = "Delete Buffers to Left" })
-    map("n", "<leader>br", "<cmd>BufferLineCloseRight<cr>", { desc = "Delete Buffers to Right" })
-    map("n", "<leader>bp", "<cmd>BufferLinePick<cr>", { desc = "Pick Buffer" })
-    map("n", "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", { desc = "Delete Other Buffers" })
     
     -- Buffer navigation
-    map("n", "<S-h>", "<cmd>BufferLineCyclePrev<cr>", { desc = "Previous Buffer" })
-    map("n", "<S-l>", "<cmd>BufferLineCycleNext<cr>", { desc = "Next Buffer" })
-    map("n", "[b", "<cmd>BufferLineCyclePrev<cr>", { desc = "Previous Buffer" })
-    map("n", "]b", "<cmd>BufferLineCycleNext<cr>", { desc = "Next Buffer" })
+    -- Note: <S-h> and <S-l> are already defined in core keymaps
+    map("n", "[b", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
+    map("n", "]b", "<cmd>bnext<cr>", { desc = "Next Buffer" })
     
     -- 🔍 SEARCH & REPLACE
     map("n", "<leader>sr", "<cmd>Spectre<cr>", { desc = "Replace in Project" })
@@ -180,7 +194,7 @@ function M.setup()
     map("v", "<leader>sr", "<cmd>Spectre open_visual<cr>", { desc = "Replace Selection" })
     
     -- 🎯 LAZY.NVIM & MASON
-    map("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
+    -- Note: <leader>L already defined in core keymaps
     map("n", "<leader>M", "<cmd>Mason<cr>", { desc = "Mason" })
     
     -- 📝 TODO COMMENTS
@@ -219,8 +233,7 @@ function M.setup()
     end
     
     -- 💡 Additional Utilities
-    map("n", "<leader>R", "<cmd>source $MYVIMRC<cr>", { desc = "Reload Config" })
-    map("n", "<leader><leader>", "<C-^>", { desc = "Switch to Last Buffer" })
+    -- Note: <leader>R and <leader><leader> already defined in core keymaps
     
     -- Silent load: notify only on error
 end

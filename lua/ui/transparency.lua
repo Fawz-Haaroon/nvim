@@ -133,10 +133,16 @@ function M.disable()
   if state.orig.winblend ~= nil then vim.o.winblend = state.orig.winblend end
   if state.orig.pumblend ~= nil then vim.o.pumblend = state.orig.pumblend end
 
-  -- Ask theme to remove transparency and reapply highlights
-  catppuccin_setup_transparent(false)
-  -- Reapply current colorscheme (Tokyonight by default)
-  pcall(vim.cmd.colorscheme, "tokyonight-storm")
+  -- Get current colorscheme before disabling transparency
+  local current_scheme = vim.g.colors_name or "tokyonight-storm"
+
+  -- Ask theme to remove transparency (only if catppuccin)
+  if current_scheme:match("catppuccin") then
+    catppuccin_setup_transparent(false)
+  end
+
+  -- Reapply current colorscheme to restore highlights
+  pcall(vim.cmd.colorscheme, current_scheme)
   do
     local ok_hl, hl = pcall(require, "ui.highlights")
     if ok_hl and type(hl) == "table" and type(hl.setup) == "function" then

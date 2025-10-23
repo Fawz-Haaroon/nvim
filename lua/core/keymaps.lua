@@ -20,7 +20,7 @@ map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- 💨 Clear search highlights
 map("n", "<leader>cs", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
-map("n", "<Esc>", "<cmd>nohlsearch<CR>", opts)
+map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights", silent = true, noremap = true })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- 📝 ENHANCED EDITING 
@@ -28,7 +28,8 @@ map("n", "<Esc>", "<cmd>nohlsearch<CR>", opts)
 
 -- 🔢 Better increment/decrement
 map({"n", "x"}, "=", "<C-a>", { desc = "Increment number" })
-map({"n", "x"}, "-", "<C-x>", { desc = "Decrement number" })
+-- Note: '-' in normal mode is used by Oil for parent directory
+map({"x"}, "-", "<C-x>", { desc = "Decrement number (visual)" })
 
 -- ✂️ Smart deletion (no register pollution)
 map({"n", "x"}, "x", '"_x', { desc = "Delete char (no register)" })
@@ -59,8 +60,8 @@ map({"n", "x"}, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- 🎯 Better line navigation
-map({"n", "x"}, "j", [[v:count == 0 ? "gj" : "j"]], expr_opts)
-map({"n", "x"}, "k", [[v:count == 0 ? "gk" : "k"]], expr_opts)
+map({"n", "x"}, "j", [[v:count == 0 ? "gj" : "j"]], { silent = true, noremap = true, expr = true, desc = "Move down (visual lines)" })
+map({"n", "x"}, "k", [[v:count == 0 ? "gk" : "k"]], { silent = true, noremap = true, expr = true, desc = "Move up (visual lines)" })
 
 -- 🏃 Fast horizontal movement  
 map({"n", "x"}, "H", "^", { desc = "Go to first non-blank" })
@@ -84,11 +85,22 @@ map("n", "<C-S-i>", "<cmd>bprevious<cr>", { desc = "Previous buffer (tabline)" }
 -- 🪟 WINDOW MANAGEMENT
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- 🔄 Smart window navigation
-map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
-map("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
-map("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
-map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
+-- 🔄 Smart window navigation (skip in explorer)
+local function safe_win_nav(direction)
+    return function()
+        -- Don't navigate if in snacks explorer or other special buffers
+        local ft = vim.bo.filetype
+        if ft == "snacks_explorer" or ft == "neo-tree" or ft == "oil" then
+            return
+        end
+        vim.cmd("wincmd " .. direction)
+    end
+end
+
+map("n", "<C-h>", safe_win_nav("h"), { desc = "Go to left window" })
+map("n", "<C-j>", safe_win_nav("j"), { desc = "Go to lower window" })
+map("n", "<C-k>", safe_win_nav("k"), { desc = "Go to upper window" })
+map("n", "<C-l>", safe_win_nav("l"), { desc = "Go to right window" })
 
 -- ➕ Window creation
 map("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })
@@ -109,16 +121,16 @@ map("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window w
 -- Oil file explorer (primary)
 map("n", "<leader>o", function()
     require("oil").open()
-end, { desc = "Oil File Browser" })
+end, { desc = "📁 Oil File Browser", silent = true })
 
 map("n", "<leader>O", function()
     require("oil").open_float()
-end, { desc = "Oil Float" })
+end, { desc = "📁 Oil Float", silent = true })
 
 -- Use - for parent directory in Oil
 map("n", "-", function()
     require("oil").open()
-end, { desc = "Open parent directory" })
+end, { desc = "📁 Open parent directory", silent = true })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- 📂 TAB MANAGEMENT
@@ -126,7 +138,7 @@ end, { desc = "Open parent directory" })
 
 map("n", "<leader>to", "<cmd>tabnew<cr>", { desc = "Open new tab" })
 map("n", "<leader>tx", "<cmd>tabclose<cr>", { desc = "Close current tab" })
-map("n", "<leader>tn", "<cmd>tabn<cr>", { desc = "Go to next tab" })
+map("n", "<leader>tN", "<cmd>tabn<cr>", { desc = "Go to next tab" })
 map("n", "<leader>tp", "<cmd>tabp<cr>", { desc = "Go to previous tab" })
 map("n", "<leader>tf", "<cmd>tabnew %<cr>", { desc = "Open current buffer in new tab" })
 
@@ -136,8 +148,8 @@ map("n", "gT", "<cmd>tabprevious<cr>", { desc = "Previous tab" })
 map("n", "<C-PageDown>", "<cmd>tabnext<cr>", { desc = "Next tab" })
 map("n", "<C-PageUp>", "<cmd>tabprevious<cr>", { desc = "Previous tab" })
 
--- 💨 Quick tab access (1-9)
-for i = 1, 9 do
+-- 💨 Quick tab access (5-9 only, 1-4 reserved for Harpoon)
+for i = 5, 9 do
     map("n", "<leader>" .. i, i .. "gt", { desc = "Go to tab " .. i })
 end
 
@@ -163,7 +175,7 @@ map("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Open Lazy" })
 
 -- 🔧 Toggle options
 map("n", "<leader>tw", "<cmd>set wrap!<cr>", { desc = "Toggle word wrap" })
-map("n", "<leader>tn", "<cmd>set number!<cr>", { desc = "Toggle line numbers" })
+map("n", "<leader>tl", "<cmd>set number!<cr>", { desc = "Toggle line numbers" })
 map("n", "<leader>tr", "<cmd>set relativenumber!<cr>", { desc = "Toggle relative numbers" })
 map("n", "<leader>ts", "<cmd>set spell!<cr>", { desc = "Toggle spell check" })
 
@@ -181,7 +193,7 @@ map("n", "<leader>u8", function() vim.cmd('colorscheme material') end, { desc = 
 -- 🪟 Transparency toggle (leader)
 map("n", "<leader>uT", function()
   require("ui.transparency").toggle()
-end, { desc = "🪟 Toggle UI Transparency" })
+end, { desc = "🪟 Toggle UI Transparency", silent = true })
 
 -- 📍 Diagnostics navigation (for LSP)
 map("n", "[d", function() vim.diagnostic.goto_prev() end, { desc = "Previous diagnostic" })
@@ -189,35 +201,27 @@ map("n", "]d", function() vim.diagnostic.goto_next() end, { desc = "Next diagnos
 map("n", "<leader>q", function() vim.diagnostic.setloclist() end, { desc = "Diagnostic quickfix" })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- 🎯 COMPETITIVE PROGRAMMING (from your workflow)
+-- 🎯 COMPETITIVE PROGRAMMING
 -- ═══════════════════════════════════════════════════════════════════════════════
-
--- 🏆 CP shortcuts (preserving your existing bindings)
-map("n", "<leader>cp", function()
-    -- This will be connected to your CP module
-end, { desc = "Copy C++ template" })
-
-map("n", "<leader>cc", function()
-    -- This will be connected to your CP module  
-end, { desc = "Compile & run C++23" })
-
-map("n", "<leader>sp", function()
-    -- This will be connected to your CP module
-end, { desc = "Toggle input/output windows" })
+-- NOTE: CP keymaps are defined in ftplugin/cpp.lua for C++ files
+-- Available commands:
+--   <leader>cc - Compile & run C++23
+--   <leader>cd - Debug with GDB
+--   <leader>ct - Insert CP template
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- 🚫 DISABLE PROBLEMATIC DEFAULTS
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Disable Ex mode
-map("n", "Q", "<nop>", opts)
+map("n", "Q", "<nop>", { desc = "Disable Ex mode", silent = true, noremap = true })
 
 -- Disable macro recording (can be re-enabled if needed)
 -- map("n", "q", "<nop>", opts)
 
 -- Disable command line history
-map("c", "<C-p>", "<nop>", opts)
-map("c", "<C-n>", "<nop>", opts)
+map("c", "<C-p>", "<nop>", { desc = "Disable history prev", silent = true, noremap = true })
+map("c", "<C-n>", "<nop>", { desc = "Disable history next", silent = true, noremap = true })
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- 📱 MOBILE-FRIENDLY ALTERNATIVES

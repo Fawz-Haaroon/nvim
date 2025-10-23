@@ -7,7 +7,6 @@ return {
   dependencies = {
     "nvim-neotest/nvim-nio",
     "nvim-lua/plenary.nvim",
-    "antoinemadec/FixCursorHold.nvim",
     "nvim-treesitter/nvim-treesitter",
     -- Language-specific adapters
     "nvim-neotest/neotest-python",
