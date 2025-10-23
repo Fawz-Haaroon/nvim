@@ -9,14 +9,6 @@ A comprehensive Neovim distribution with LSP support for 15+ languages, 110+ plu
 
 ## Installation
 
-### Quick Install
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Fawz-Haaroon/nvim/main/install.sh | bash
-```
-
-### Manual Install
-
 ```bash
 git clone https://github.com/Fawz-Haaroon/nvim.git ~/.config/nvim
 cd ~/.config/nvim
