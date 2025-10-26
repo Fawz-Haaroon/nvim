@@ -1,19 +1,8 @@
-# 🎨 Stylua Configuration
-# Professional Lua code formatting for the entire config
+# Stylua Configuration
+# Professional Lua code formatting
 
 column_width = 120
 line_endings = "Unix"
 indent_type = "Spaces"
 indent_width = 4
-quote_style = "AutoPreferSingle"
-call_parentheses = "Always"
-collapse_simple_statement = "FunctionOnly"
-
-# Exclude directories from formatting
-ignore_globs = [
-    "lua/plugins/**",
-    "snacks.nvim/**",
-    ".git/**",
-    ".local/**",
-    "vendor/**",
-]
+quote_style = "AutoPreferDouble"
