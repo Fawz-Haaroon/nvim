@@ -113,10 +113,10 @@ init_logging() {
         exec 2> >(tee -a "$ERROR_LOG" >&2)
     fi
     
-    log_info "🚀 Starting $CONFIG_NAME installation"
-    log_info "📝 Logging to: $LOG_FILE"
-    log_info "🗂️  Backup directory: $BACKUP_DIR"
-    log_info "🏠 Target directory: $TARGET_DIR"
+    log_info "Starting $CONFIG_NAME installation"
+    log_info "Logging to: $LOG_FILE"
+    log_info "Backup directory: $BACKUP_DIR"
+    log_info "Target directory: $TARGET_DIR"
 }
 
 # Logging functions (fallback to stdout/stderr if descriptors not set)
@@ -134,26 +134,26 @@ show_header() {
     local width=80
     local padding=$(( (width - ${#title} - 4) / 2 ))
     
-    log_raw
-    printf "${MAGENTA}╔%*s╗${RESET}\n" $((width-2)) | tr ' ' '═' >&3
-    printf "${MAGENTA}║%*s${BOLD}%s${RESET}${MAGENTA}%*s║${RESET}\n" $padding "" "$title" $padding "" >&3
-    printf "${MAGENTA}╚%*s╝${RESET}\n" $((width-2)) | tr ' ' '═' >&3
-    log_raw
+    printf "\n"
+    printf "${MAGENTA}╔%*s╗${RESET}\n" $((width-2)) | tr ' ' '═'
+    printf "${MAGENTA}║%*s${BOLD}%s${RESET}${MAGENTA}%*s║${RESET}\n" $padding "" "$title" $padding ""
+    printf "${MAGENTA}╚%*s╝${RESET}\n" $((width-2)) | tr ' ' '═'
+    printf "\n"
 }
 
 show_banner() {
     clear
-    log_raw "${CYAN}"
-    log_raw "    ██╗     ███████╗██╗  ██╗██╗████████╗██████╗  ██████╗ ███╗   ██╗"
-    log_raw "    ██║     ██╔════╝╚██╗██╔╝██║╚══██╔══╝██╔══██╗██╔═══██╗████╗  ██║"
-    log_raw "    ██║     █████╗   ╚███╔╝ ██║   ██║   ██████╔╝██║   ██║██╔██╗ ██║"
-    log_raw "    ██║     ██╔══╝   ██╔██╗ ██║   ██║   ██╔══██╗██║   ██║██║╚██╗██║"
-    log_raw "    ███████╗███████╗██╔╝ ██╗██║   ██║   ██║  ██║╚██████╔╝██║ ╚████║"
-    log_raw "    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝"
-    log_raw "${RESET}"
-    log_raw "${BOLD}${WHITE}                      🚀 ULTIMATE NEOVIM INSTALLER v${INSTALLER_VERSION}${RESET}"
-    log_raw "${GRAY}                   The Most Advanced Neovim Configuration Setup${RESET}"
-    log_raw
+    printf "${CYAN}\n"
+    printf "    ██╗     ███████╗██╗  ██╗██╗████████╗██████╗  ██████╗ ███╗   ██╗\n"
+    printf "    ██║     ██╔════╝╚██╗██╔╝██║╚══██╔══╝██╔══██╗██╔═══██╗████╗  ██║\n"
+    printf "    ██║     █████╗   ╚███╔╝ ██║   ██║   ██████╔╝██║   ██║██╔██╗ ██║\n"
+    printf "    ██║     ██╔══╝   ██╔██╗ ██║   ██║   ██╔══██╗██║   ██║██║╚██╗██║\n"
+    printf "    ███████╗███████╗██╔╝ ██╗██║   ██║   ██║  ██║╚██████╔╝██║ ╚████║\n"
+    printf "    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝\n"
+    printf "${RESET}\n"
+    printf "${BOLD}${WHITE}                       ULTIMATE NEOVIM INSTALLER v${INSTALLER_VERSION}${RESET}\n"
+    printf "${GRAY}                    The Most Advanced Neovim Configuration Setup${RESET}\n"
+    printf "\n"
 }
 
 show_progress() {
@@ -233,9 +233,10 @@ detect_system() {
             if [[ -f /etc/os-release ]]; then
                 # shellcheck source=/dev/null
                 source /etc/os-release
-                OS_ID="$ID"
-                OS_NAME="$NAME"
-                OS_VERSION="$VERSION_ID"
+                OS_ID="${ID:-unknown-linux}"
+                OS_NAME="${NAME:-Unknown Linux}"
+                # Arch Linux and rolling releases may not have VERSION_ID
+                OS_VERSION="${VERSION_ID:-rolling}"
             else
                 OS_ID="unknown-linux"
                 OS_NAME="Unknown Linux"
@@ -253,7 +254,7 @@ detect_system() {
             ;;
     esac
     
-    log_info "🖥️  Detected: $OS_NAME $OS_VERSION ($OS_ID)"
+    log_info "System: $OS_NAME $OS_VERSION ($OS_ID)"
     
     # Detect package manager
     detect_package_manager
@@ -279,7 +280,7 @@ detect_package_manager() {
             PM_INSTALL="$install"
             PM_UPDATE="$update"
             PM_SEARCH="$search"
-            log_info "📦 Package manager: $PM"
+            log_info "Package Manager: $PM"
             return 0
         fi
     done
@@ -390,7 +391,7 @@ create_backup() {
         timestamp=$(date +%Y%m%d_%H%M%S)
         local backup_path="$BACKUP_DIR/${backup_name}_${timestamp}"
         
-        log_info "📦 Creating backup: $backup_path"
+        log_info "Creating backup: $backup_path"
         cp -r "$source" "$backup_path"
         log_success "Backup created: $backup_path"
     fi
@@ -410,7 +411,7 @@ trap cleanup_temp EXIT INT TERM
 # ═══════════════════════════════════════════════════════════════════════════════
 
 update_package_database() {
-    log_info "🔄 Updating package database..."
+    log_info "Updating package database..."
     
     case "$PM" in
         pacman) sudo pacman -Sy --noconfirm ;;
@@ -430,7 +431,7 @@ install_packages() {
         return 0
     fi
     
-    log_info "📦 Installing packages: ${packages[*]}"
+    log_info "Installing packages: ${packages[*]}"
     
     if [[ $DRY_RUN == true ]]; then
         log_info "[DRY RUN] Would install: ${packages[*]}"
@@ -535,7 +536,7 @@ install_neovim() {
         fi
     fi
     
-    log_info "📥 Installing Neovim $MIN_NEOVIM_VERSION+"
+    log_info "Installing Neovim $MIN_NEOVIM_VERSION or higher"
     
     case "$PM" in
         pacman)
@@ -572,7 +573,7 @@ install_neovim() {
 }
 
 install_neovim_appimage() {
-    log_info "📦 Installing Neovim AppImage..."
+    log_info "Installing Neovim AppImage..."
     
     local bin_dir="$HOME/.local/bin"
     local app_path="$bin_dir/nvim.appimage"
@@ -588,7 +589,7 @@ install_neovim_appimage() {
         
         # Add to PATH if needed
         if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
-            log_info "📌 Add ~/.local/bin to your PATH in your shell configuration"
+        log_info "Add ~/.local/bin to your PATH in your shell configuration"
             log_info "   export PATH=\"\$HOME/.local/bin:\$PATH\""
         fi
         
@@ -606,7 +607,7 @@ install_neovim_appimage() {
 
 install_fonts() {
     if [[ $SKIP_FONTS == true ]]; then
-        log_info "⏭️  Skipping font installation (SKIP_FONTS=true)"
+        log_info "Skipping font installation (SKIP_FONTS=true)"
         return 0
     fi
     
@@ -624,7 +625,7 @@ install_fonts() {
         return 0
     fi
     
-    log_info "📥 Installing JetBrains Mono Nerd Font..."
+    log_info "Installing JetBrains Mono Nerd Font..."
     
     # Try package manager first
     case "$PM" in
@@ -663,7 +664,7 @@ install_fonts() {
 }
 
 install_font_manual() {
-    log_info "📦 Installing JetBrains Mono Nerd Font manually..."
+    log_info "Installing JetBrains Mono Nerd Font manually..."
     
     local font_dir="$HOME/.local/share/fonts/JetBrainsMono"
     local temp_file="$TEMP_DIR/JetBrainsMono.zip"
@@ -701,7 +702,7 @@ install_font_manual() {
 
 install_nodejs() {
     if [[ $SKIP_NODEJS == true ]]; then
-        log_info "⏭️  Skipping Node.js installation (SKIP_NODEJS=true)"
+        log_info "Skipping Node.js installation (SKIP_NODEJS=true)"
         return 0
     fi
     
@@ -711,17 +712,17 @@ install_nodejs() {
     # Check if Node.js is already installed with correct version
     if command_exists node; then
         local node_version
-        node_version=$(node -v 2>/dev/null | grep -oE '[0-9]+' | head -n1)
+        node_version=$(node -v 2>/dev/null | grep -oE '[0-9]+' | head -n1 || echo "0")
         
         if [[ ${node_version:-0} -ge 18 ]]; then
-            log_success "Node.js v$node_version is already installed"
+            log_success "Node.js v${node_version} is already installed"
             return 0
         else
-            log_warn "Node.js v$node_version is too old (need >= 18)"
+            log_warn "Node.js v${node_version} is too old (need >= 18)"
         fi
     fi
     
-    log_info "📥 Installing Node.js 20 LTS..."
+    log_info "Installing Node.js 20 LTS..."
     
     case "$PM" in
         pacman)
@@ -757,7 +758,7 @@ install_nodejs() {
 
 install_python() {
     if [[ $SKIP_PYTHON == true ]]; then
-        log_info "⏭️  Skipping Python installation (SKIP_PYTHON=true)"
+        log_info "Skipping Python installation (SKIP_PYTHON=true)"
         return 0
     fi
     
@@ -766,7 +767,7 @@ install_python() {
     
     # Ensure Python 3 is installed
     if ! command_exists python3; then
-        log_info "📥 Installing Python 3..."
+        log_info "Installing Python 3..."
         
         case "$PM" in
             pacman)
@@ -791,7 +792,7 @@ install_python() {
     local venv_path="$TARGET_DIR/.venv"
     
     if [[ ! -d "$venv_path" ]]; then
-        log_info "🐍 Creating Python virtual environment..."
+        log_info "Creating Python virtual environment..."
         mkdir -p "$(dirname "$venv_path")"
         
         if python3 -m venv "$venv_path" 2>/dev/null; then
@@ -804,7 +805,7 @@ install_python() {
     
     # Install pynvim in virtual environment
     if [[ -x "$venv_path/bin/python" ]]; then
-        log_info "📦 Installing pynvim..."
+        log_info "Installing pynvim..."
         "$venv_path/bin/python" -m pip install --upgrade pip setuptools wheel pynvim >/dev/null 2>&1
         log_success "pynvim installed in virtual environment"
     else
@@ -815,7 +816,7 @@ install_python() {
 
 install_go() {
     if [[ $SKIP_GO == true ]]; then
-        log_info "⏭️  Skipping Go installation (SKIP_GO=true)"
+        log_info "Skipping Go installation (SKIP_GO=true)"
         return 0
     fi
     
@@ -824,12 +825,12 @@ install_go() {
     
     if command_exists go; then
         local go_version
-        go_version=$(go version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -n1)
-        log_success "Go $go_version is already installed"
+        go_version=$(go version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -n1 || echo "unknown")
+        log_success "Go ${go_version} is already installed"
         return 0
     fi
     
-    log_info "📥 Installing Go..."
+    log_info "Installing Go..."
     
     case "$PM" in
         pacman)
@@ -856,7 +857,7 @@ install_go() {
 
 install_rust() {
     if [[ $SKIP_RUST == true ]]; then
-        log_info "⏭️  Skipping Rust installation (SKIP_RUST=true)"
+        log_info "Skipping Rust installation (SKIP_RUST=true)"
         return 0
     fi
     
@@ -865,12 +866,12 @@ install_rust() {
     
     if command_exists rustc && command_exists cargo; then
         local rust_version
-        rust_version=$(rustc --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-        log_success "Rust $rust_version is already installed"
+        rust_version=$(rustc --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
+        log_success "Rust ${rust_version} is already installed"
         return 0
     fi
     
-    log_info "📥 Installing Rust..."
+    log_info "Installing Rust..."
     
     case "$PM" in
         pacman)
@@ -892,7 +893,7 @@ install_rust() {
     
     # Fallback: Install via rustup
     if ! command_exists rustc; then
-        log_info "📦 Installing Rust via rustup..."
+        log_info "Installing Rust via rustup..."
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
         
         # Source cargo env
@@ -969,7 +970,7 @@ install_tree_sitter_cli() {
         return 0
     fi
     
-    log_info "📥 Installing tree-sitter CLI..."
+    log_info "Installing tree-sitter CLI..."
     
     case "$PM" in
         pacman)
@@ -1034,7 +1035,7 @@ install_ripgrep() {
         return 0
     fi
     
-    log_info "📥 Installing ripgrep..."
+    log_info "Installing ripgrep..."
     
     case "$PM" in
         pacman|dnf|yum|zypper|brew)
@@ -1059,7 +1060,7 @@ install_fd() {
         return 0
     fi
     
-    log_info "📥 Installing fd..."
+    log_info "Installing fd..."
     
     case "$PM" in
         pacman|dnf|yum|zypper|brew)
@@ -1088,7 +1089,7 @@ install_bat() {
         return 0
     fi
     
-    log_info "📥 Installing bat..."
+    log_info "Installing bat..."
     
     case "$PM" in
         pacman|dnf|yum|zypper|brew)
@@ -1214,42 +1215,49 @@ install_config() {
     log_step "Installing Neovim configuration..."
     ((CURRENT_STEP++))
     
+    # Check if script is running from target directory
+    local running_from_target=false
+    if [[ "$SCRIPT_DIR" == "$TARGET_DIR" ]]; then
+        running_from_target=true
+        log_success "Configuration is already in the correct location"
+        # Set permissions on existing files
+        find "$TARGET_DIR" -type f -name "*.lua" -exec chmod 644 {} \; 2>/dev/null || true
+        find "$TARGET_DIR" -type d -exec chmod 755 {} \; 2>/dev/null || true
+        return 0
+    fi
+    
     # Create backup if target directory exists
     if [[ -e "$TARGET_DIR" ]]; then
         create_backup "$TARGET_DIR" "nvim_config"
         
-        if [[ $FORCE_INSTALL != true ]]; then
+        if [[ ${FORCE_INSTALL:-false} != true ]]; then
             if ! ask_yes_no "Target directory exists. Overwrite?" "n"; then
                 log_error "Installation aborted by user"
                 return 1
             fi
         fi
         
-        log_info "🗑️  Removing existing configuration..."
+        log_info "Removing existing configuration..."
         rm -rf "$TARGET_DIR"
     fi
     
     # Copy configuration
-    log_info "📁 Copying configuration files..."
+    log_info "Copying configuration files..."
     mkdir -p "$(dirname "$TARGET_DIR")"
     
-    if [[ "$SCRIPT_DIR" == "$TARGET_DIR" ]]; then
-        log_info "Configuration is already in the correct location"
+    # Use rsync if available, otherwise cp
+    if command_exists rsync; then
+        rsync -av --exclude='.git' --exclude='install.sh' --exclude='*.log' "$SCRIPT_DIR/" "$TARGET_DIR/" 2>/dev/null
     else
-        # Use rsync if available, otherwise cp
-        if command_exists rsync; then
-            rsync -av --exclude='.git' --exclude='install.sh' --exclude='*.log' "$SCRIPT_DIR/" "$TARGET_DIR/"
-        else
-            cp -r "$SCRIPT_DIR" "$TARGET_DIR"
-            # Clean up unwanted files
-            rm -f "$TARGET_DIR/install.sh"
-            rm -rf "$TARGET_DIR/.git"
-        fi
+        cp -r "$SCRIPT_DIR/" "$TARGET_DIR/" 2>/dev/null
+        # Clean up unwanted files
+        rm -f "$TARGET_DIR/install.sh" 2>/dev/null || true
+        rm -rf "$TARGET_DIR/.git" 2>/dev/null || true
     fi
     
     # Set proper permissions
-    find "$TARGET_DIR" -type f -name "*.lua" -exec chmod 644 {} \;
-    find "$TARGET_DIR" -type d -exec chmod 755 {} \;
+    find "$TARGET_DIR" -type f -name "*.lua" -exec chmod 644 {} \; 2>/dev/null || true
+    find "$TARGET_DIR" -type d -exec chmod 755 {} \; 2>/dev/null || true
     
     log_success "Configuration files installed to $TARGET_DIR"
 }
@@ -1267,7 +1275,7 @@ install_neovim_plugins() {
         return 1
     fi
     
-    log_info "🔌 Bootstrapping lazy.nvim plugin manager..."
+    log_info "Bootstrapping lazy.nvim plugin manager..."
     
     # Install plugins headlessly
     local install_cmd=(
@@ -1284,7 +1292,7 @@ install_neovim_plugins() {
     fi
     
     # Install Mason tools
-    log_info "🔧 Installing LSP servers and tools via Mason..."
+    log_info "Installing LSP servers and tools via Mason..."
     
     local mason_cmd=(
         nvim --headless
@@ -1299,7 +1307,7 @@ install_neovim_plugins() {
     fi
     
     # Update remote plugins
-    log_info "🔄 Updating remote plugins..."
+    log_info "Updating remote plugins..."
     nvim --headless "+UpdateRemotePlugins" "+qall" >/dev/null 2>&1 || true
 }
 
@@ -1360,7 +1368,7 @@ run_health_check() {
     
     # Run Neovim health check
     if command_exists nvim && [[ -d "$TARGET_DIR" ]]; then
-        log_info "🏥 Running Neovim health check..."
+        log_info "Running Neovim health check..."
         
         local health_output
         health_output=$(nvim --headless "+checkhealth" "+qall" 2>&1 | grep -E "(ERROR|WARN)" | head -5)
@@ -1393,54 +1401,52 @@ run_health_check() {
 # ═══════════════════════════════════════════════════════════════════════════════
 
 show_installation_summary() {
-    log_raw
-    show_header "🎉 INSTALLATION COMPLETE!"
+    printf "\n"
+    show_header "INSTALLATION COMPLETE"
     
-    log_raw "${BOLD}${GREEN}Lexitron.nvim has been successfully installed!${RESET}"
-    log_raw
+    printf "${BOLD}${GREEN}Lexitron.nvim has been successfully installed!${RESET}\n\n"
     
-    # Installation statistics
-    log_info "📊 Installation Statistics:"
-    log_info "   • Total packages installed: ${#INSTALLED_PACKAGES[@]}"
-    log_info "   • Total warnings: $WARNING_COUNT"
-    log_info "   • Total errors: $ERROR_COUNT"
-    log_info "   • Installation time: $(( SECONDS / 60 ))m $(( SECONDS % 60 ))s"
+    # Installation statistics - count arrays safely
+    local installed_count=0
+    local failed_count=0
+    for key in "${!INSTALLED_PACKAGES[@]}"; do ((installed_count++)); done
+    for key in "${!FAILED_PACKAGES[@]}"; do ((failed_count++)); done
     
-    log_raw
-    log_info "🚀 Quick Start:"
-    log_info "   1. Start Neovim: ${BOLD}nvim${RESET}"
-    log_info "   2. Plugin manager: ${BOLD}:Lazy${RESET}"
-    log_info "   3. LSP manager: ${BOLD}:Mason${RESET}"
-    log_info "   4. Health check: ${BOLD}:checkhealth${RESET}"
-    log_info "   5. Theme selector: ${BOLD}:Themery${RESET}"
+    printf "${CYAN}${BOLD}Installation Statistics:${RESET}\n"
+    printf "  ${BULLET} Total packages installed: ${GREEN}${installed_count}${RESET}\n"
+    printf "  ${BULLET} Total warnings: ${YELLOW}${WARNING_COUNT:-0}${RESET}\n"
+    printf "  ${BULLET} Total errors: ${RED}${ERROR_COUNT:-0}${RESET}\n"
+    printf "  ${BULLET} Installation time: ${CYAN}$(( SECONDS / 60 ))m $(( SECONDS % 60 ))s${RESET}\n"
     
-    log_raw
-    log_info "📚 Documentation:"
-    log_info "   • Guide: ${TARGET_DIR}/docs/guide.md"
-    log_info "   • Reference: ${TARGET_DIR}/docs/reference.md"
-    log_info "   • Keybindings: Press ${BOLD}<space>fk${RESET} in Neovim"
+    printf "\n${CYAN}${BOLD}Quick Start:${RESET}\n"
+    printf "  ${CYAN}1.${RESET} Start Neovim: ${BOLD}${WHITE}nvim${RESET}\n"
+    printf "  ${CYAN}2.${RESET} Plugin manager: ${BOLD}${WHITE}:Lazy${RESET}\n"
+    printf "  ${CYAN}3.${RESET} LSP manager: ${BOLD}${WHITE}:Mason${RESET}\n"
+    printf "  ${CYAN}4.${RESET} Health check: ${BOLD}${WHITE}:checkhealth${RESET}\n"
+    printf "  ${CYAN}5.${RESET} Theme selector: ${BOLD}${WHITE}:Themery${RESET}\n"
+    
+    printf "\n${CYAN}${BOLD}Documentation:${RESET}\n"
+    printf "  ${BULLET} Guide: ${GRAY}${TARGET_DIR}/docs/guide.md${RESET}\n"
+    printf "  ${BULLET} Reference: ${GRAY}${TARGET_DIR}/docs/reference.md${RESET}\n"
+    printf "  ${BULLET} Keybindings: Press ${BOLD}${WHITE}<space>fk${RESET} in Neovim\n"
     
     if [[ $ERROR_COUNT -gt 0 ]]; then
-        log_raw
-        log_warn "⚠️  Some components failed to install. Check the logs:"
-        log_warn "   • Installation log: $LOG_FILE"
-        log_warn "   • Error log: $ERROR_LOG"
-        log_warn
-        log_warn "You can run the installer again or install missing components manually."
+        printf "\n${YELLOW}${BOLD}Warnings:${RESET}\n"
+        printf "  Some components failed to install. Check the logs:\n"
+        printf "  ${BULLET} Installation log: ${GRAY}$LOG_FILE${RESET}\n"
+        printf "  ${BULLET} Error log: ${GRAY}$ERROR_LOG${RESET}\n"
+        printf "\n  You can run the installer again or install missing components manually.\n"
     fi
     
-    if [[ ${#FAILED_PACKAGES[@]} -gt 0 ]]; then
-        log_raw
-        log_warn "📦 Failed packages (install manually if needed):"
+    if [[ $failed_count -gt 0 ]]; then
+        printf "\n${YELLOW}${BOLD}Failed Packages:${RESET}\n"
         for package in "${!FAILED_PACKAGES[@]}"; do
-            log_warn "   • $package"
+            printf "  ${BULLET} ${RED}$package${RESET}\n"
         done
     fi
     
-    log_raw
-    log_success "🎊 Welcome to your legendary development environment!"
-    log_raw "${DIM}    For support, visit: https://github.com/lexitron/nvim${RESET}"
-    log_raw
+    printf "\n${GREEN}${BOLD}Welcome to your legendary development environment!${RESET}\n"
+    printf "${DIM}For support, visit: https://github.com/lexitron/nvim${RESET}\n\n"
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1542,7 +1548,7 @@ main() {
     show_banner
     
     # Pre-installation checks
-    log_info "🔍 Performing pre-installation checks..."
+    log_info "Performing pre-installation checks..."
     
     # Estimate total steps
     TOTAL_STEPS=12
@@ -1550,14 +1556,14 @@ main() {
     
     # Show configuration
     if [[ $DRY_RUN == true ]]; then
-        log_warn "🧪 DRY RUN MODE - No actual changes will be made"
+        log_warn "DRY RUN MODE - No actual changes will be made"
     fi
     
     if [[ $VERBOSE == true ]]; then
-        log_info "📢 Verbose mode enabled"
+        log_info "Verbose mode enabled"
     fi
     
-    log_info "🎯 Installation target: $TARGET_DIR"
+    log_info "Installation target: $TARGET_DIR"
     log_raw
     
     # Main installation steps
@@ -1588,7 +1594,7 @@ main() {
     # Cleanup
     cleanup_temp
     
-    log_success "🏆 Installation completed successfully!"
+    log_success "Installation completed successfully!"
     exit 0
 }
 
