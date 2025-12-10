@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
---  🧼 Conform.nvim - Format-on-save with zero bloat
+--  🧼 Conform.nvim - Format-on-save with zero bloat (manual formatting only)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 return {
@@ -7,33 +7,36 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   opts = {
     notify_on_error = true,
+    stop_after_first = true, -- new recommended option
+
     -- Ensure clang-format reads your ~/.clang-format or project .clang-format
     formatters = {
       clang_format = {
         prepend_args = { "-style=file" },
       },
     },
+
     formatters_by_ft = {
       -- Web
-      javascript = { { "prettier", "prettierd" } },
-      javascriptreact = { { "prettier", "prettierd" } },
-      typescript = { { "prettier", "prettierd" } },
-      typescriptreact = { { "prettier", "prettierd" } },
-      vue = { { "prettier", "prettierd" } },
-      svelte = { { "prettier", "prettierd" } },
-      css = { { "prettier", "prettierd" } },
-      scss = { { "prettier", "prettierd" } },
-      html = { { "prettier", "prettierd" } },
-      json = { { "prettier", "prettierd" } },
-      jsonc = { { "prettier", "prettierd" } },
-      yaml = { { "prettier", "prettierd" } },
-      markdown = { { "prettier", "prettierd" } },
-      graphql = { { "prettier", "prettierd" } },
+      javascript = { "prettier", "prettierd" },
+      javascriptreact = { "prettier", "prettierd" },
+      typescript = { "prettier", "prettierd" },
+      typescriptreact = { "prettier", "prettierd" },
+      vue = { "prettier", "prettierd" },
+      svelte = { "prettier", "prettierd" },
+      css = { "prettier", "prettierd" },
+      scss = { "prettier", "prettierd" },
+      html = { "prettier", "prettierd" },
+      json = { "prettier", "prettierd" },
+      jsonc = { "prettier", "prettierd" },
+      yaml = { "prettier", "prettierd" },
+      markdown = { "prettier", "prettierd" },
+      graphql = { "prettier", "prettierd" },
 
       -- Lua
       lua = { "stylua" },
 
-      -- Python (DISABLED to avoid style conflicts)
+      -- Python (disabled)
       -- python = { "isort", "black" },
 
       -- Go
@@ -49,36 +52,24 @@ return {
       -- Terraform
       terraform = { "terraform_fmt" },
 
-      -- C/C++ (leave to clangd by default; can use clang-format if desired)
+      -- C/C++
       c = { "clang_format" },
       cpp = { "clang_format" },
     },
 
-    -- Format on save conservatively and quickly
-    format_on_save = function(bufnr)
-      -- Skip very large files for performance
-      local max = 200 * 1024 -- 200KB
-      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
-      if ok and stats and stats.size > max then
-        return
-      end
-
-      -- Skip autoformat for Python (always disabled)
-      if vim.bo[bufnr].filetype == "python" then
-        return
-      end
-
-      return { lsp_fallback = true, timeout_ms = 1000 }
-    end,
+    -- Disable automatic format on save
+    format_on_save = false,
   },
 
   config = function(_, opts)
     require("conform").setup(opts)
-    -- Optional command and keymap for manual formatting
+
+    -- Manual formatting command
     vim.api.nvim_create_user_command("Format", function()
       require("conform").format({ async = true, lsp_fallback = true })
     end, {})
 
+    -- Manual formatting keybind
     vim.keymap.set({ "n", "v" }, "<leader>cf", function()
       require("conform").format({ async = true, lsp_fallback = true })
     end, { desc = "Format with Conform" })

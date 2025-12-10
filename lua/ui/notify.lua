@@ -53,7 +53,24 @@ return {
     config = function(_, opts)
         local notify = require("notify")
         notify.setup(opts)
-        vim.notify = notify
+        -- Base notifier
+        local base_notify = notify
+
+        -- Filter out noisy LSP warnings
+        ---@param msg string|any
+        ---@param level integer|nil
+        ---@param n_opts table|nil
+        local function filtered_notify(msg, level, n_opts)
+            if type(msg) == "string"
+                and msg:match("textDocument/documentHighlight")
+                and msg:match("not supported")
+            then
+                return
+            end
+            return base_notify(msg, level, n_opts)
+        end
+
+        vim.notify = filtered_notify
         
         -- Auto-dismiss notifications after timeout
         vim.api.nvim_create_autocmd("User", {
