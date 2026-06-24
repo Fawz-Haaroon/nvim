@@ -24,7 +24,7 @@ dependencies = {
     },
     config = function(_, opts)
         require("mason").setup(opts)
-        
+
         -- 🚀 Auto-install LSP servers
         local mason_lspconfig = require("mason-lspconfig")
         mason_lspconfig.setup({
@@ -36,45 +36,45 @@ dependencies = {
                 "cssls",
                 "tailwindcss",
                 "emmet_ls",
-                
+
                 -- 🐍 Python (minimal setup)
                 "pyright",
                 -- "ruff", -- DISABLED: Style warnings
-                
+
                 -- ⚡ Rust
                 "rust_analyzer",
-                
+
                 -- 🔵 Go
                 "gopls",
-                
+
                 -- ☕ Java
                 "jdtls",
-                
+
                 -- 🧊 C/C++
                 "clangd",
-                
+
                 -- 🎯 C#
                 "omnisharp",
-                
+
                 -- 💎 Ruby
                 "solargraph",
-                
+
                 -- 🔥 Lua
                 "lua_ls",
-                
+
                 -- 🐘 PHP
                 "phpactor",
-                
+
                 -- ⚛️ Framework-specific
                 "svelte",
-                
+
                 -- 📊 Data & Config
                 "jsonls",
                 "yamlls",
-                
+
                 -- 📝 Markup & Documentation
                 "marksman",
-                
+
                 -- 🐳 DevOps & Infrastructure
                 "dockerls",
                 "bashls",
@@ -82,7 +82,7 @@ dependencies = {
             },
             automatic_installation = true,
         })
-        
+
         -- 🛠️ Auto-install additional tools
         local mason_tool_installer = require("mason-tool-installer")
         mason_tool_installer.setup({
@@ -90,22 +90,22 @@ dependencies = {
                 -- 🎨 Formatters (minimal Python)
                 "prettier",
                 -- "black", -- DISABLED: Style conflicts
-                -- "isort", -- DISABLED: Style conflicts 
-                "rustfmt",
+                -- "isort", -- DISABLED: Style conflicts
+
                 "gofumpt",
                 "goimports",
                 "stylua",
                 "shfmt",
-                
+
                 -- 🔍 Linters (minimal Python linting)
                 "eslint_d",
-                -- "flake8", -- DISABLED: Style warnings  
+                -- "flake8", -- DISABLED: Style warnings
                 -- "pylint", -- DISABLED: Style warnings
                 "shellcheck",
                 "hadolint",
                 "markdownlint",
                 "yamllint",
-                
+
                 -- 🐛 Debuggers
                 "debugpy",
                 "codelldb",
@@ -115,7 +115,7 @@ dependencies = {
             auto_update = false,
             run_on_start = true,
         })
-        
+
         -- Silent load: notify only on error
     end,
 }

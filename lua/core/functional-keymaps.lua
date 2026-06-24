@@ -223,13 +223,13 @@ function M.setup()
     -- 🔄 REFACTORING
     local refactor_ok, refactor = pcall(require, "refactoring")
     if refactor_ok then
-        map("x", "<leader>re", refactor.refactor("Extract Function"), { desc = "Extract Function" })
-        map("x", "<leader>rf", refactor.refactor("Extract Function To File"), { desc = "Extract Function to File" })
-        map("x", "<leader>rv", refactor.refactor("Extract Variable"), { desc = "Extract Variable" })
-        map("n", "<leader>rI", refactor.refactor("Inline Function"), { desc = "Inline Function" })
-        map({"n", "x"}, "<leader>ri", refactor.refactor("Inline Variable"), { desc = "Inline Variable" })
-        map("n", "<leader>rb", refactor.refactor("Extract Block"), { desc = "Extract Block" })
-        map("n", "<leader>rbf", refactor.refactor("Extract Block To File"), { desc = "Extract Block to File" })
+        map("x", "<leader>re", function() refactor.refactor("Extract Function") end, { desc = "Extract Function" })
+        map("x", "<leader>rf", function() refactor.refactor("Extract Function To File") end, { desc = "Extract Function to File" })
+        map("x", "<leader>rv", function() refactor.refactor("Extract Variable") end, { desc = "Extract Variable" })
+        map("n", "<leader>rI", function() refactor.refactor("Inline Function") end, { desc = "Inline Function" })
+        map({"n", "x"}, "<leader>ri", function() refactor.refactor("Inline Variable") end, { desc = "Inline Variable" })
+        map("n", "<leader>rb", function() refactor.refactor("Extract Block") end, { desc = "Extract Block" })
+        map("n", "<leader>rbf", function() refactor.refactor("Extract Block To File") end, { desc = "Extract Block to File" })
     end
     
     -- 💡 Additional Utilities

@@ -33,6 +33,7 @@ return {
         -- Help & Info
         { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "❓ Help Tags" },
         { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "⌨️ Keymaps" },
+        { "<leader>ck", function() require("telescope.builtin").keymaps({ default_text = "LSP:" }) end, desc = "⌨️ LSP Keymaps Search" },
         { "<leader>fm", "<cmd>Telescope man_pages<cr>", desc = "📖 Man Pages" },
         { "<leader>fo", "<cmd>Telescope vim_options<cr>", desc = "⚙️ Vim Options" },
         { "<leader>fC", "<cmd>Telescope commands<cr>", desc = "💻 Commands" },
@@ -305,7 +306,10 @@ return {
         telescope.load_extension("fzf")
         telescope.load_extension("ui-select")
         telescope.load_extension("file_browser")
-        
-        -- Silent load: notify only on error
+
+        -- LSP keymap fuzzy search command
+        vim.api.nvim_create_user_command("LspKeymapsSearch", function()
+            require("telescope.builtin").keymaps({ default_text = "LSP:" })
+        end, { desc = "Fuzzy search LSP keymaps (pre-filtered to 'LSP:')" })
     end,
 }

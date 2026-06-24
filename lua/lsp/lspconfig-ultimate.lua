@@ -387,8 +387,18 @@ return {
             map("n", "<leader>cd", vim.diagnostic.open_float, "Line Diagnostics")
             map("n", "<leader>cl", "<cmd>LspInfo<cr>", "LSP Info")
             map("n", "<leader>cR", "<cmd>LspRestart<cr>", "Restart LSP")
-            map("n", "]d", vim.diagnostic.goto_next, "Next Diagnostic")
-            map("n", "[d", vim.diagnostic.goto_prev, "Prev Diagnostic")
+            map("n", "]d", function() vim.diagnostic.jump({ count = 1, severity = { min = vim.diagnostic.severity.WARN } }) end, "Next Diagnostic (≥ Warning)")
+            map("n", "[d", function() vim.diagnostic.jump({ count = -1, severity = { min = vim.diagnostic.severity.WARN } }) end, "Prev Diagnostic (≥ Warning)")
+            map("n", "]D", function() vim.diagnostic.jump({ count = 1 }) end, "Next Diagnostic (all)")
+            map("n", "[D", function() vim.diagnostic.jump({ count = -1 }) end, "Prev Diagnostic (all)")
+            map("n", "]e", function() vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR }) end, "Next Error")
+            map("n", "[e", function() vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR }) end, "Prev Error")
+            map("n", "]w", function() vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.WARN }) end, "Next Warning")
+            map("n", "[w", function() vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.WARN }) end, "Prev Warning")
+            map("n", "]h", function() vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.HINT }) end, "Next Hint")
+            map("n", "[h", function() vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.HINT }) end, "Prev Hint")
+            map("n", "]i", function() vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.INFO }) end, "Next Info")
+            map("n", "[i", function() vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.INFO }) end, "Prev Info")
 
             -- 🔍 Workspace
             map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "Add Workspace Folder")
@@ -451,6 +461,180 @@ return {
             lspconfig[server].setup(config)
         end
         vim.lsp.handlers["textDocument/documentHighlight"] = function() end
+
+        -- 🎯 Global: all diagnostics picker (works from any buffer)
+        local function diag_picker(severity, label)
+            local opts = { bufnr = nil }
+            if severity then
+                opts.severity = severity
+            end
+            require("telescope.builtin").diagnostics(opts)
+        end
+
+        vim.keymap.set("n", "<leader>cD", function()
+            vim.ui.select(
+                { "All", "Errors", "Warnings", "Info", "Hints" },
+                { prompt = "Filter diagnostics by severity:" },
+                function(choice)
+                    if not choice then return end
+                    local sev_map = {
+                        All      = nil,
+                        Errors   = vim.diagnostic.severity.ERROR,
+                        Warnings = vim.diagnostic.severity.WARN,
+                        Info     = vim.diagnostic.severity.INFO,
+                        Hints    = vim.diagnostic.severity.HINT,
+                    }
+                    diag_picker(sev_map[choice], choice)
+                end
+            )
+        end, { desc = "All Diagnostics — filter by severity (Telescope)" })
+
+        vim.keymap.set("n", "<leader>cDE", function()
+            diag_picker(vim.diagnostic.severity.ERROR, "Errors")
+        end, { desc = "Diagnostics: Errors only (Telescope)" })
+
+        vim.keymap.set("n", "<leader>cDW", function()
+            diag_picker(vim.diagnostic.severity.WARN, "Warnings")
+        end, { desc = "Diagnostics: Warnings only (Telescope)" })
+
+        vim.keymap.set("n", "<leader>cDI", function()
+            diag_picker(vim.diagnostic.severity.INFO, "Info")
+        end, { desc = "Diagnostics: Info only (Telescope)" })
+
+        vim.keymap.set("n", "<leader>cDH", function()
+            diag_picker(vim.diagnostic.severity.HINT, "Hints")
+        end, { desc = "Diagnostics: Hints only (Telescope)" })
+
+        -- 📋 LSP Keymaps cheatsheet command
+        vim.api.nvim_create_user_command("LspKeymaps", function()
+            local lines = {
+                "╔══════════════════════════════════════════════════════════╗",
+                "║              LSP Keymaps Cheatsheet                     ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  🔍 NAVIGATION                                          ║",
+                "║  gd   → Go to Definition                                ║",
+                "║  gr   → Go to References                                ║",
+                "║  gI   → Go to Implementation                            ║",
+                "║  gy   → Go to Type Definition                           ║",
+                "║  gD   → Go to Declaration                               ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  📚 DOCUMENTATION                                       ║",
+                "║  K      → Hover Documentation                           ║",
+                "║  gK     → Signature Help                                ║",
+                "║  <C-k>  → Signature Help (insert mode)                  ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  🔧 CODE ACTIONS                                        ║",
+                "║  <leader>ca  → Code Action (normal + visual)            ║",
+                "║  <leader>cc  → Run Codelens                             ║",
+                "║  <leader>cC  → Refresh Codelens                         ║",
+                "║  <leader>cr  → Rename Symbol                            ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  🎯 DIAGNOSTICS                                         ║",
+                "║  <leader>cd   → Line Diagnostics (float)                ║",
+                "║  <leader>cD   → All Diagnostics — pick severity first   ║",
+                "║  <leader>cDE  → Errors only  (Telescope)                ║",
+                "║  <leader>cDW  → Warnings only (Telescope)               ║",
+                "║  <leader>cDI  → Info only     (Telescope)               ║",
+                "║  <leader>cDH  → Hints only    (Telescope)               ║",
+                "║  <leader>cl  → LSP Info                                 ║",
+                "║  <leader>cR  → Restart LSP                              ║",
+                "║  ]d / [d     → Next/Prev Diagnostic (≥ Warning)         ║",
+                "║  ]D / [D     → Next/Prev Diagnostic (all severities)    ║",
+                "║  ]e / [e     → Next/Prev Error                          ║",
+                "║  ]w / [w     → Next/Prev Warning                        ║",
+                "║  ]h / [h     → Next/Prev Hint                           ║",
+                "║  ]i / [i     → Next/Prev Info                           ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  🔍 WORKSPACE                                           ║",
+                "║  <leader>wa  → Add Workspace Folder                     ║",
+                "║  <leader>wr  → Remove Workspace Folder                  ║",
+                "║  <leader>wl  → List Workspace Folders                   ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  💅 FORMAT                                              ║",
+                "║  <leader>cf  → Format Document / Range                  ║",
+                "╠══════════════════════════════════════════════════════════╣",
+                "║  💡 INLAY HINTS                                         ║",
+                "║  <leader>ch  → Toggle Inlay Hints                       ║",
+                "╚══════════════════════════════════════════════════════════╝",
+                "  Press q or <Esc> to close",
+            }
+
+            local buf = vim.api.nvim_create_buf(false, true)
+            vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+            vim.bo[buf].modifiable = false
+            vim.bo[buf].filetype = "lsp-keymaps"
+
+            local width = 62
+            local height = #lines
+            local win = vim.api.nvim_open_win(buf, true, {
+                relative = "editor",
+                width = width,
+                height = height,
+                row = math.floor((vim.o.lines - height) / 2),
+                col = math.floor((vim.o.columns - width) / 2),
+                style = "minimal",
+                border = "none",
+                title = " LSP Keymaps ",
+                title_pos = "center",
+            })
+            vim.wo[win].cursorline = false
+
+            for _, key in ipairs({ "q", "<Esc>" }) do
+                vim.keymap.set("n", key, function()
+                    vim.api.nvim_win_close(win, true)
+                end, { buffer = buf, nowait = true })
+            end
+
+            -- Syntax highlighting (theme-agnostic, links to built-in groups)
+            vim.api.nvim_set_hl(0, "LspKeysBorder",        { link = "SpecialComment", default = true })
+            vim.api.nvim_set_hl(0, "LspKeysSectionHeader", { link = "Title",          default = true })
+            vim.api.nvim_set_hl(0, "LspKeysKey",           { link = "Keyword",        default = true })
+            vim.api.nvim_set_hl(0, "LspKeysArrow",         { link = "Comment",        default = true })
+
+            local ns = vim.api.nvim_create_namespace("lsp_keymaps_hl")
+            for i, line in ipairs(lines) do
+                local lnum = i - 1
+                if line:match("^╔") or line:match("^╠") or line:match("^╚") then
+                    -- Box borders and section separators → muted accent
+                    vim.api.nvim_buf_add_highlight(buf, ns, "LspKeysBorder", lnum, 0, -1)
+                elseif line:match("^║") and not line:match("→") then
+                    -- Title row and section header rows (emoji + caps) → accent
+                    vim.api.nvim_buf_add_highlight(buf, ns, "LspKeysSectionHeader", lnum, 0, -1)
+                elseif line:match("→") then
+                    -- Keymap entry line: highlight key name and separator arrow separately.
+                    -- "║" is 3 UTF-8 bytes; the two spaces that follow add 2 more → key starts at byte 5.
+                    local key_part = line:match("^║  (.-)%s+→")
+                    if key_part then
+                        vim.api.nvim_buf_add_highlight(buf, ns, "LspKeysKey", lnum, 5, 5 + #key_part)
+                    end
+                    -- "→" (U+2192) is 3 UTF-8 bytes; line:find returns 1-indexed byte offset.
+                    local arrow_byte = line:find("→")
+                    if arrow_byte then
+                        vim.api.nvim_buf_add_highlight(buf, ns, "LspKeysArrow", lnum, arrow_byte - 1, arrow_byte + 2)
+                    end
+                end
+            end
+        end, { desc = "Show LSP keymap cheatsheet" })
+
+        -- 🗂️ which-key groups for ] / [ diagnostic jump prefixes
+        local ok, wk = pcall(require, "which-key")
+        if ok then
+            wk.add({
+                { "]d", desc = "Next Diagnostic (≥ Warning)" },
+                { "[d", desc = "Prev Diagnostic (≥ Warning)" },
+                { "]D", desc = "Next Diagnostic (all)" },
+                { "[D", desc = "Prev Diagnostic (all)" },
+                { "]e", desc = "Next Error" },
+                { "[e", desc = "Prev Error" },
+                { "]w", desc = "Next Warning" },
+                { "[w", desc = "Prev Warning" },
+                { "]h", desc = "Next Hint" },
+                { "[h", desc = "Prev Hint" },
+                { "]i", desc = "Next Info" },
+                { "[i", desc = "Prev Info" },
+            })
+        end
+
         -- LSP configured silently
     end,
 }
